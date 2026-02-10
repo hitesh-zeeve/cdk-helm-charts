@@ -172,6 +172,7 @@ config:
     chainId: 3
     globalExitRootAddress: "0xa40d5f56745a118d0906a34e69aec8c0db1cb8fa"
     rpcURL: http://op-geth:8545
+    opNodeURL: http://op-node:9545
     initialBlockNum: 0
 
   log:
@@ -189,3 +190,7 @@ resources:
   requests:
     cpu: 1
     memory: 4Gi
+
+# GKE-specific health check policy (networking.gke.io/HealthCheckPolicy)
+healthCheckPolicy:
+  enabled: true
