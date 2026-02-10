@@ -1,0 +1,27 @@
+env: dev
+
+backendConfig:
+  enabled: false
+
+config:
+  log:
+    environment: development # "production" or "development"
+    level: info
+  bridgeServer:
+    finalizedGEREnabled: true
+  etherman:
+  claimTxManager:
+    path: /etc/bridge/claimtx.keystore
+    areClaimsBetweenL2sEnabled: false
+  network:
+    l1GenBlockNumber: 30
+    polygonBridgeAddress: "0x96dE011d4f794ADAe25E6dF8F927EE71A7E58e76"
+    polygonZkEVMGlobalExitRootAddress: "0x1C889784Eb6873d43461a823DFb0Aa8E0e11DB6F"
+    polygonRollupManagerAddress: "0x1D6fd904917fD52492c3A6E8d8d6829c288014E5"
+    polygonZkEVMAddress: "0x8b86B44C6Ad3ac1e7481f0B26D1BDbd86A4dd92f"
+    l2GenBlockNumbers: 0
+    l2PolygonBridgeAddress: "0x96dE011d4f794ADAe25E6dF8F927EE71A7E58e76"
+    l2PolygonZkEVMGlobalExitRootAddress: "0xa40d5f56745a118d0906a34e69aec8c0db1cb8fa"
+    requireSovereignChainSmcs: true
+  synchronizer:
+    forceL2SyncChunk: true

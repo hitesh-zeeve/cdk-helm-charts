@@ -1,0 +1,40 @@
+env: dev
+
+config:
+  # Aggsender in AggchainProof mode, talking to the local aggkit-prover
+  aggsender:
+
+    agglayerClient:
+
+      useTLS: false
+    
+    aggkitProverClient:
+      useTLS: false
+
+    optimisticModeEnabled: true
+  
+  aggoracle:
+    aggoracleCommitteeAddr: "0x23AFfdbeFf65A63Da1aD17bB95A7a8f89C006a75"
+
+  # L2 RPC and chain configuration for dev; update to match your L2
+  l2:
+    # Example dev chain id; override as needed
+    chainId: 2027
+
+
+  # L1 config for dev; keep addresses in sync with your rollup deployment
+  l1:
+    chainId: 11155111
+    bridgeAddress: "0x96dE011d4f794ADAe25E6dF8F927EE71A7E58e76"
+    globalExitRootAddress: "0x1C889784Eb6873d43461a823DFb0Aa8E0e11DB6F"
+    polTokenAddress: "0xb6eFF1F58BDc08D032b74Da39512d90b1Db6263a"
+    rollupAddress: "0x8b86B44C6Ad3ac1e7481f0B26D1BDbd86A4dd92f"
+    rollupBlockNumber: "231"
+    rollupManagerAddress: "0x1D6fd904917fD52492c3A6E8d8d6829c288014E5"
+    rollupManagerBlockNumber: 30
+    syncBlockChunkSize: 1000
+
+# Disable GKE-specific HealthCheckPolicy on local/dev clusters
+healthCheckPolicy:
+  enabled: false
+

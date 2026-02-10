@@ -14,6 +14,7 @@ data:
     L1URL = {{ index $opSecrets.data "l1RpcURL" | b64dec | quote }}
     {{- end }}
     L2URL = {{ .Values.config.l2.rpcURL | quote }}
+    OpNodeURL = {{ .Values.config.l2.opNodeURL | quote }}
 
     SequencerPrivateKeyPath = ""
     SequencerPrivateKeyPassword = ""
@@ -71,7 +72,7 @@ data:
     {{ else }}
     TrustedSequencerKey = {Path = "/etc/aggkit/{{ .Values.config.aggsender.privateKey.keystoreFileName }}", Password = {{ index $opSecrets.data (.Values.config.aggsender.privateKey.keystoreFilePasswordSecretFieldName) | b64dec | quote }}}
     {{ end }}
-    OpNodeURL = "http://op-node:9545"
+    OpNodeURL = {{ .Values.config.l2.opNodeURL | quote }}
     RequireKeyMatchTrustedSequencer = true
     {{ end }}
 

@@ -21,6 +21,7 @@ spec:
         - name: {{ include "aggkit.fullname" . }}
           port: {{ .Values.container.ports.validator }}
 {{- end }}
+{{- if .Values.healthCheckPolicy.enabled }}
 ---
 apiVersion: networking.gke.io/v1
 kind: HealthCheckPolicy
@@ -41,3 +42,4 @@ spec:
     group: ""
     kind: Service
     name: {{ include "aggkit.fullname" . }}
+{{- end }}
