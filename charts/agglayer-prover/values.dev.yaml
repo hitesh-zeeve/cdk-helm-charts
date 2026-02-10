@@ -1,0 +1,21 @@
+# Example values file for a DEV environment
+# Copy to values.dev.yaml and adjust.
+
+env: dev
+
+container:
+  replicaCount: 1
+  env:
+    networkRpcUrl: "https://rpc.succinct.xyz/"
+
+  # Optional overrides
+  # image:
+  #   tag: "0.4.4"
+
+resources:
+  requests:
+    cpu: 2
+    memory: 2Gi
+  limits:
+    cpu: 4
+    memory: 4Gi

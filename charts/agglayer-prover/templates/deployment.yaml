@@ -1,10 +1,10 @@
-{{- $networkPrivateKey := "" }}
-{{- $opSecrets := (lookup "v1" "Secret" .Release.Namespace "op-secrets") }}
-{{- if $opSecrets.data }}
-    {{- if (index $opSecrets.data "NETWORK_PRIVATE_KEY") }}
-        {{- $networkPrivateKey = index $opSecrets.data "NETWORK_PRIVATE_KEY" | b64dec }}
-    {{- end }}
-{{- end }}
+# {{- $networkPrivateKey := "" }}
+# {{- $opSecrets := (lookup "v1" "Secret" .Release.Namespace "op-secrets") }}
+# {{- if $opSecrets.data }}
+#     {{- if (index $opSecrets.data "NETWORK_PRIVATE_KEY") }}
+#         {{- $networkPrivateKey = index $opSecrets.data "NETWORK_PRIVATE_KEY" | b64dec }}
+#     {{- end }}
+# {{- end }}
 
 apiVersion: apps/v1
 kind: Deployment
@@ -62,8 +62,8 @@ spec:
           env:
             - name: NETWORK_RPC_URL
               value: {{ .Values.container.env.networkRpcUrl | quote }}
-            - name: NETWORK_PRIVATE_KEY
-              value: {{ $networkPrivateKey }}
+            # - name: NETWORK_PRIVATE_KEY
+            #   value: {{ $networkPrivateKey }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
           volumeMounts:

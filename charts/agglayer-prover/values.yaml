@@ -10,11 +10,11 @@ container:
   image:
     repository: ghcr.io/agglayer/agglayer
     pullPolicy: IfNotPresent
-    tag: 0.3.0-rc.22
+    tag: 0.4.4
   
   ports:
     app: 4445
-    telemetry: 9090
+    telemetry: 9092
 
   replicaCount: 1
 
@@ -26,10 +26,10 @@ podAnnotations: {}
 resources:
   limits:
     cpu: 4
-    memory: 16Gi
+    memory: 4Gi
   requests:
     cpu: 1
-    memory: 4Gi
+    memory: 2Gi
 
 config:
   maxConcurrencyLimit: 100
@@ -39,9 +39,10 @@ config:
   log:
     environment: development # "production" or "development"
     level: debug
+    format: "pretty"
 
   networkProver:
-    enabled: true
+    enabled: false
     provingTimeout: "30m"
     provingRequestTimeout: "10m"
   
@@ -50,6 +51,11 @@ config:
     # same for `max-encoding-message-size`
     # default value is equal to 4MB
     maxDecodingMessageSize: 104857600
+  
+  cpuProver:
+    enabled: true
+    maxConcurrencyLimit: 100
+    provingTimeout: "60m"
 
 podSecurityContext: {}
 

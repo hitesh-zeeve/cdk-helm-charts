@@ -1,0 +1,16 @@
+env: dev
+
+config:
+  networkId: 15151
+  l2ExecutionLayerRpcEndpoint: "http://op-geth:8545"
+  l2ConsensusLayerRpcEndpoint: "http://op-node:9545"
+  mock: false
+  polygonRollupManager: "0x1D6fd904917fD52492c3A6E8d8d6829c288014E5"
+  globalExitRootManagerV2SovereignChain: "0x1C889784Eb6873d43461a823DFb0Aa8E0e11DB6F"
+
+datadir:
+  path: /data
+  size: 50Gi
+
+serviceAccount:
+  create: false

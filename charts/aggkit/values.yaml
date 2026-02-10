@@ -73,7 +73,7 @@ serviceAccount:
 
 storage:
   path: /data
-  size: 500Gi
+  size: 50Gi
 
 podSecurityContext: {}
 securityContext: {}
@@ -156,22 +156,22 @@ config:
     blockFinality: "LatestBlock"
 
   l1:
-    bridgeAddress: "0x123"
-    chainId: 123
-    globalExitRootAddress: "0x123"
-    polTokenAddress: "0x123"
-    rollupAddress: "0x123"
-    rollupBlockNumber: "0x123"
-    rollupManagerAddress: "0x123"
-    rollupManagerBlockNumber: 123
+    bridgeAddress: "0x96dE011d4f794ADAe25E6dF8F927EE71A7E58e76"
+    chainId: 11155111
+    globalExitRootAddress: "0x1C889784Eb6873d43461a823DFb0Aa8E0e11DB6F"
+    polTokenAddress: "0xb6eFF1F58BDc08D032b74Da39512d90b1Db6263a"
+    rollupAddress: "0x8b86B44C6Ad3ac1e7481f0B26D1BDbd86A4dd92f"
+    rollupBlockNumber: "231"
+    rollupManagerAddress: "0x1D6fd904917fD52492c3A6E8d8d6829c288014E5"
+    rollupManagerBlockNumber: 30
     syncBlockChunkSize: 1000
 
   l2:
     agglayerAddress: "0x123"
-    bridgeAddress: "0x123"
-    chainId: 123
-    globalExitRootAddress: "0x123"
-    rpcURL: http://localhost:8545
+    bridgeAddress: "0x96dE011d4f794ADAe25E6dF8F927EE71A7E58e76"
+    chainId: 3
+    globalExitRootAddress: "0xa40d5f56745a118d0906a34e69aec8c0db1cb8fa"
+    rpcURL: http://op-geth:8545
     initialBlockNum: 0
 
   log:

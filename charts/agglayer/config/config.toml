@@ -16,7 +16,7 @@
 {{- $proofSigners := "" }}
 
 {{- $opSecrets := (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret) }}
-{{- if $opSecrets.data }}
+{{- if and $opSecrets $opSecrets.data }}
     {{- if (index $opSecrets.data "DATA_NODE_RPC_HOST") }}
         {{- $rpcHost = index $opSecrets.data "DATA_NODE_RPC_HOST" | b64dec }}
     {{- end }}
@@ -126,15 +126,17 @@ level = {{ .Values.config.log.level | quote }}
 outputs = ["stderr"]
 format = "json"
 
+{{- if .Values.config.gcpkms.enabled }}
 [auth.gcpkms]
 ProjectId = {{ $projectId | quote }}
 Location = {{ $location | quote }}
 Keyring = {{ $keyring | quote }}
 KeyName = {{ $keyName | quote }}
-KeyVersion = {{ $keyVersion | atoi }}
+KeyVersion = {{ $keyVersion | int }}
+{{- end }}
 
 [l1]
-chain-id = {{ $l1ChainID | atoi }}
+chain-id = {{ $l1ChainID | int }}
 node-url = {{ $l1NodeURL | quote }}
 ws-node-url = {{ $l1NodeURLWS | quote }}
 max-reconnection-elapsed-time = {{ .Values.config.l1.maxReconnectionElapsedTime | quote }}
@@ -168,10 +170,12 @@ input-backpressure-buffer-size = 1000
 [storage]
 db-path = {{ .Values.storage.path | quote }}
 
+{{- if ne .Values.backup.type "none" }}
 [storage.backup]
 path = {{ .Values.backup.path | quote }}
 state_max_backup_count = 100
 pending_max_backup_count = 100
+{{- end }}
 
 
 {{- if .Values.config.proxiedNetworks }}

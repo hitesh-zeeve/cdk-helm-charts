@@ -5,12 +5,14 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "agglayer.labels" . | nindent 4 }}
+  {{- if and .Values.gke.enabled .Values.gke.backendConfig.enabled }}
   annotations:
     cloud.google.com/backend-config: '{ "ports": {
       "readrpc-port": "readrpc-backendconfig",
       "metrics-port": "metrics-backendconfig",
       "admin-port": "admin-backendconfig"
     }}'
+  {{- end }}
 spec:
   ports:
     - name: readrpc-port
@@ -33,11 +35,15 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "agglayer.labels" . | nindent 4 }}
+  {{- if and .Values.gke.enabled .Values.gke.backendConfig.enabled }}
   annotations:
     cloud.google.com/backend-config: '{ "ports": {
       "grpc": "readrpc-backendconfig"
     }}'
+    {{- if .Values.gke.neg.enabled }}
     cloud.google.com/neg: '{"ingress": true}'
+    {{- end }}
+  {{- end }}
 spec:
   ports:
     - name: grpc
@@ -50,6 +56,8 @@ spec:
       targetPort: {{ .Values.ports.proxy }}
   selector:
     {{- include "agglayer.selectorLabels" . | nindent 4 }}
+
+{{- if and .Values.gke.enabled .Values.gke.backendConfig.enabled }}
 ---
 apiVersion: cloud.google.com/v1
 kind: BackendConfig
@@ -97,8 +105,10 @@ spec:
     type: HTTP
     requestPath: /health
     port: {{ .Values.ports.readrpc }}
+{{- end }}
+
+{{- if .Values.createMigrationService }}
 ---
-{{- if .Values.createMigrationService -}}
 apiVersion: v1
 kind: Service
 metadata:
@@ -106,11 +116,15 @@ metadata:
   namespace: {{ .Release.Namespace }}
   labels:
     {{- include "agglayer.labels" . | nindent 4 }}
+  {{- if and .Values.gke.enabled .Values.gke.backendConfig.enabled }}
   annotations:
     cloud.google.com/backend-config: '{ "ports": {
       "grpc": "readrpc-backendconfig"
     }}'
+    {{- if .Values.gke.neg.enabled }}
     cloud.google.com/neg: '{"ingress": true}'
+    {{- end }}
+  {{- end }}
 spec:
   ports:
     - name: grpc

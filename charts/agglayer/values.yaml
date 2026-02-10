@@ -9,7 +9,7 @@ podLabels:
 image:
   repository: ghcr.io/agglayer/agglayer
   pullPolicy: IfNotPresent
-  tag: 0.4.0-rc.16
+  tag: 0.4.4
 
 ports:
   grpc: 9089
@@ -23,16 +23,39 @@ existingSecret: op-secrets
 domain: agglayer-test.polygon.technology
 createMigrationService: true
 
+# Platform toggles
+gke:
+  enabled: true
+  backendConfig:
+    enabled: true
+  neg:
+    enabled: true
+
+datadog:
+  enabled: true
+
 tls:
+  createSecret: true
+  # If set, the chart will reference this secret and will NOT create one.
+  existingSecretName: ""
   base64Cert: ""
   base64Key: ""
 
 ingress:
+  enabled: true
+  # For private/internal-only deployments set enabled=false.
+  # className is used for Ingress.spec.ingressClassName.
+  classNameApp: gce
+  classNameGrpc: nginx
   nginxProxyBodySize: 10m
 
 config:
   agglayerProverEndpoint: http://localhost:4445
   debugMode: false
+
+  gcpkms:
+    # Set false for private/local clusters (no GCP KMS)
+    enabled: true
 
   epoch:
     blockClock:
@@ -108,13 +131,55 @@ securityContext: {}
   # runAsUser: 1000
 
 storage:
+  # Persistence mode:
+  # - pvc: (default) uses a PVC created by the StatefulSet volumeClaimTemplates
+  # - hostPath: mounts a directory from the node filesystem (good for quick testing; single replica)
+  type: pvc
   path: /etc/agglayer/data
   size: 1Ti
+  # If set, used as PVC storageClassName. If empty, defaults to chart fullname.
+  storageClassName: ""
+  # Used when storage.type=hostPath
+  hostPath: /var/lib/agglayer/data
+
+storageClass:
+  # Creates a StorageClass named after the release (or override name below).
+  # For non-GKE clusters you usually want create=false and set storage.storageClassName instead.
+  create: true
+  name: "" # default: chart fullname
+  provisioner: pd.csi.storage.gke.io
+  allowVolumeExpansion: true
+  volumeBindingMode: WaitForFirstConsumer
+  parameters:
+    type: pd-ssd
+    replication-type: regional-pd
 
 backup:
+  # Backup volume type:
+  # - gcsfuse: creates a PV/PVC backed by a GCS bucket (GKE-specific)
+  # - pvc: creates a regular PVC (cluster-local / storageClass-backed)
+  # - hostPath: mounts a directory from the node filesystem
+  # - none: disables backup volume and omits [storage.backup] config
+  type: gcsfuse
   path: /backup
   bucket: "bucket_name"
   size: 1Ti
+  # Used when backup.type=hostPath
+  hostPath: /var/lib/agglayer/backup
+  pvc:
+    storageClassName: ""
+    accessModes:
+      - ReadWriteOnce
+
+# Scheduling defaults (previously hardcoded in the template)
+nodeSelector:
+  group: "agglayer"
+
+tolerations:
+  - key: group
+    operator: Equal
+    value: "agglayer"
+    effect: NoSchedule
 
 resources:
   limits:

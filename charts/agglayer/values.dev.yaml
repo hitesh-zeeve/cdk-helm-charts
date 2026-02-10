@@ -1,0 +1,68 @@
+
+# Example values file for a DEV environment
+# Copy to values.dev.yaml and adjust.
+
+env: dev
+
+# Private / internal cluster defaults
+ingress:
+  enabled: false
+
+gke:
+  enabled: false
+  backendConfig:
+    enabled: false
+  neg:
+    enabled: false
+
+datadog:
+  enabled: false
+
+serviceAccount:
+  create: false
+
+# domain: "agglayer-test.polygon.technology"
+
+# Chart creates a TLS Secret from these base64-encoded PEM values.
+# You can generate base64 via: base64 -w0 < cert.pem
+# tls:
+#   base64Cert: "<BASE64_PEM_CERT>"
+#   base64Key: "<BASE64_PEM_KEY>"
+
+tls:
+  createSecret: false
+  existingSecretName: ""
+  base64Cert: ""
+  base64Key: ""
+
+backup:
+  # For private clusters, pick one:
+  # - none: no backup volume
+  # - pvc: local/dynamic PVC
+  type: none
+  size: 50Gi
+  pvc:
+    storageClassName: ""
+    accessModes:
+      - ReadWriteOnce
+
+storageClass:
+  create: false
+
+storage:
+  type: hostPath
+  path: /etc/agglayer/data
+  hostPath: /var/lib/agglayer/data
+
+config:
+  agglayerProverEndpoint: "http://agglayer-prover:4445"
+  gcpkms:
+    enabled: false
+
+resources:
+  limits:
+    cpu: 2
+    memory: 4Gi
+  requests:
+    cpu: 1
+    memory: 2Gi

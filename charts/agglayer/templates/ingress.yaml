@@ -1,3 +1,6 @@
+{{- if .Values.ingress.enabled }}
+{{- $tlsSecretName := (default (printf "%s-cloudflare-origin-cert" (include "agglayer.fullname" .)) .Values.tls.existingSecretName) }}
+
 # App and metrics
 apiVersion: networking.k8s.io/v1
 kind: Ingress
@@ -9,13 +12,13 @@ metadata:
     {{- toYaml . | nindent 4 }}
     {{- end }}
   annotations:
-    ingressClassName: "gce"
     ingress.kubernetes.io/healthcheck-path: "/metrics"
 spec:
+  ingressClassName: {{ .Values.ingress.classNameApp | quote }}
   tls:
     - hosts:
       - {{ .Values.domain }}
-      secretName: {{ include "agglayer.fullname" . }}-cloudflare-origin-cert
+      secretName: {{ $tlsSecretName }}
   rules:
     - host: {{ .Values.domain }}
       http:
@@ -43,13 +46,12 @@ metadata:
   labels:
     {{- toYaml . | nindent 4 }}
     {{- end }}
-  annotations:
-    ingressClassName: "gce"
 spec:
+  ingressClassName: {{ .Values.ingress.classNameApp | quote }}
   tls:
     - hosts:
       - admin-{{ .Values.domain }}
-      secretName: {{ include "agglayer.fullname" . }}-cloudflare-origin-cert
+      secretName: {{ $tlsSecretName }}
   rules:
     - host: admin-{{ .Values.domain }}
       http:
@@ -76,11 +78,11 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
     nginx.ingress.kubernetes.io/proxy-body-size: {{ .Values.ingress.nginxProxyBodySize }}
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingress.classNameGrpc | quote }}
   tls:
     - hosts:
       - grpc-{{ .Values.domain }}
-      secretName: {{ include "agglayer.fullname" . }}-cloudflare-origin-cert
+      secretName: {{ $tlsSecretName }}
   rules:
     - host: grpc-{{ .Values.domain }}
       http:
@@ -107,11 +109,11 @@ metadata:
     nginx.ingress.kubernetes.io/backend-protocol: "GRPC"
     nginx.ingress.kubernetes.io/proxy-body-size: 10m
 spec:
-  ingressClassName: nginx
+  ingressClassName: {{ .Values.ingress.classNameGrpc | quote }}
   tls:
     - hosts:
       - proxy-grpc-{{ .Values.domain }}
-      secretName: {{ include "agglayer.fullname" . }}-cloudflare-origin-cert
+      secretName: {{ $tlsSecretName }}
   rules:
     - host: proxy-grpc-{{ .Values.domain }}
       http:
@@ -123,3 +125,5 @@ spec:
                 name: {{ include "agglayer.fullname" . }}-grpc
                 port:
                   number: {{ .Values.ports.proxy }}
+
+{{- end }}

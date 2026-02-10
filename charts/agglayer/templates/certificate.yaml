@@ -1,3 +1,4 @@
+{{- if and .Values.ingress.enabled .Values.tls.createSecret (not .Values.tls.existingSecretName) }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -7,3 +8,4 @@ type: kubernetes.io/tls
 data:
   tls.crt: {{ .Values.tls.base64Cert }}
   tls.key: {{ .Values.tls.base64Key }}
+{{- end }}

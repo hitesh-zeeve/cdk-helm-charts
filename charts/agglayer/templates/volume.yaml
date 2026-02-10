@@ -1,3 +1,4 @@
+{{- if eq .Values.backup.type "gcsfuse" }}
 apiVersion: v1
 kind: PersistentVolume
 metadata:
@@ -7,7 +8,7 @@ spec:
   - ReadWriteMany
   capacity:
     storage: {{ .Values.backup.size }}
-  storageClassName: {{ include "agglayer.fullname" . }}-backup  
+  storageClassName: {{ include "agglayer.fullname" . }}-backup
   mountOptions:
     - implicit-dirs
   csi:
@@ -29,3 +30,23 @@ spec:
     requests:
       storage: {{ .Values.backup.size }}
   storageClassName: {{ include "agglayer.fullname" . }}-backup
+{{- end }}
+
+{{- if eq .Values.backup.type "pvc" }}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: {{ include "agglayer.fullname" . }}-backup-pvc
+  namespace: {{ .Release.Namespace }}
+spec:
+  {{- with .Values.backup.pvc.accessModes }}
+  accessModes:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  resources:
+    requests:
+      storage: {{ .Values.backup.size }}
+  {{- if .Values.backup.pvc.storageClassName }}
+  storageClassName: {{ .Values.backup.pvc.storageClassName | quote }}
+  {{- end }}
+{{- end }}

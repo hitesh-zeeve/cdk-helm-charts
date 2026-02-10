@@ -13,12 +13,17 @@ spec:
   template:
     metadata:
       annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        {{- if .Values.gke.enabled }}
         # https://cloud.google.com/kubernetes-engine/docs/how-to/extended-duration-pods
         cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
-        checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        {{- end }}
+        {{- if eq .Values.backup.type "gcsfuse" }}
         # https://cloud.google.com/kubernetes-engine/docs/how-to/persistent-volumes/cloud-storage-fuse-csi-driver
         gke-gcsfuse/volumes: "true"
         gke-gcsfuse/ephemeral-storage-limit: 1Gi
+        {{- end }}
+        {{- if .Values.datadog.enabled }}
         ad.datadoghq.com/{{ .Chart.Name }}.checks: |
           {
             "openmetrics": {
@@ -32,6 +37,7 @@ spec:
               ]
             }
           }
+        {{- end }}
       labels:
         {{- include "agglayer.labels" . | nindent 8 }}
         {{- with .Values.podLabels }}
@@ -80,16 +86,19 @@ spec:
               readOnly: true
             - mountPath: {{ .Values.storage.path | quote }}
               name: data
+            {{- if ne .Values.backup.type "none" }}
             - name: backup
               mountPath: {{ .Values.backup.path | quote }}
               readOnly: false
+            {{- end }}
+      {{- with .Values.tolerations }}
       tolerations:
-      - key: group
-        operator: Equal
-        value: "agglayer"
-        effect: NoSchedule
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
       nodeSelector:
-        group: "agglayer"
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       volumes:
         - name: config
           configMap:
@@ -97,16 +106,36 @@ spec:
             items:
               - key: "config.toml"
                 path: "config.toml"
+        {{- if eq .Values.storage.type "hostPath" }}
+        - name: data
+          hostPath:
+            path: {{ .Values.storage.hostPath | quote }}
+            type: DirectoryOrCreate
+        {{- end }}
+        {{- if ne .Values.backup.type "none" }}
         - name: backup
+          {{- if eq .Values.backup.type "hostPath" }}
+          hostPath:
+            path: {{ .Values.backup.hostPath | quote }}
+            type: DirectoryOrCreate
+          {{- else }}
           persistentVolumeClaim:
             claimName: {{ include "agglayer.fullname" . }}-backup-pvc
             readOnly: false
+          {{- end }}
+        {{- end }}
+  {{- if eq .Values.storage.type "pvc" }}
   volumeClaimTemplates:
     - metadata:
         name: data
       spec:
         accessModes: [ "ReadWriteOnce" ]
-        storageClassName: {{ include "agglayer.fullname" . }}
+        {{- if .Values.storage.storageClassName }}
+        storageClassName: {{ .Values.storage.storageClassName | quote }}
+        {{- else if .Values.storageClass.create }}
+        storageClassName: {{ default (include "agglayer.fullname" .) .Values.storageClass.name }}
+        {{- end }}
         resources:
           requests:
             storage: {{ .Values.storage.size }}
+  {{- end }}
