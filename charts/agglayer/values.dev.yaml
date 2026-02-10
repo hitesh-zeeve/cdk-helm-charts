@@ -66,3 +66,7 @@ resources:
   requests:
     cpu: 1
     memory: 2Gi
+
+# Clear default scheduling constraints for MicroK8s/local testing
+nodeSelector: {}
+tolerations: []

@@ -1,48 +1,26 @@
 env: dev
 
 config:
-  # Enable the main components we usually want in a dev setup
-  components:
-    - aggsender
-    - aggsender-validator
-    - aggoracle
-
-  
-
   # Aggsender in AggchainProof mode, talking to the local aggkit-prover
   aggsender:
-    mode: "AggchainProof" # PessimisticProof (PP) or AggchainProof (FEP)
 
     agglayerClient:
-      # Prover gRPC endpoint inside the same namespace
-      url: "http://93.115.25.122:4443"
+
       useTLS: false
     
     aggkitProverClient:
-      url: "http://93.115.25.122:8091"
       useTLS: false
 
     optimisticModeEnabled: true
-
-  # Validator also in AggchainProof mode
-  aggsenderValidator:
-    mode: "AggchainProof"
-
-    agglayer:
-      url: "http://93.115.25.122:4443"
-      useTLS: false
   
   aggoracle:
-    enableAggoracleCommittee: true
     aggoracleCommitteeAddr: "0x23AFfdbeFf65A63Da1aD17bB95A7a8f89C006a75"
 
   # L2 RPC and chain configuration for dev; update to match your L2
   l2:
     # Example dev chain id; override as needed
     chainId: 2027
-    # If running op-geth in-cluster, this service URL should work
-    rpcURL: http://93.115.25.122:8545
-    opNodeURL: http://93.115.25.122:9545
+
 
   # L1 config for dev; keep addresses in sync with your rollup deployment
   l1:
