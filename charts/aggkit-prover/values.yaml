@@ -25,12 +25,12 @@ serviceAccount:
 
 config:
   networkId: 0
-  l2ExecutionLayerRpcEndpoint: "http://op-geth.op-succinct-l2.svc.cluster.local:8545"
-  l2ConsensusLayerRpcEndpoint: "http://op-node.op-succinct-l2.svc.cluster.local:9545"
+  l2ExecutionLayerRpcEndpoint: "http://op-succinct-sequencer.op-succinct.svc.cluster.local:8545"
+  l2ConsensusLayerRpcEndpoint: "http://op-succinct-sequencer.op-succinct.svc.cluster.local:9545"
   mock: false
   polygonRollupManager: "0x0000000000000000000000000000000000000000"
   globalExitRootManagerV2SovereignChain: "0x0000000000000000000000000000000000000000"
-  proposerEndpoint: "http://op-succinct-proposer.op-succinct-l2.svc.cluster.local:50001"
+  proposerEndpoint: "http://op-succinct-proposer.op-succinct.svc.cluster.local:50051"
   genesis: |
     {}
 

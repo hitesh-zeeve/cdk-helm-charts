@@ -171,8 +171,8 @@ config:
     bridgeAddress: "0x96dE011d4f794ADAe25E6dF8F927EE71A7E58e76"
     chainId: 3
     globalExitRootAddress: "0xa40d5f56745a118d0906a34e69aec8c0db1cb8fa"
-    rpcURL: http://op-geth.op-succinct-l2.svc.cluster.local:8545
-    opNodeURL: http://op-node.op-succinct-l2.svc.cluster.local:9545
+    rpcURL: http://op-succinct-sequencer.op-succinct.svc.cluster.local:8545
+    opNodeURL: http://op-succinct-sequencer.op-succinct.svc.cluster.local:9545
     initialBlockNum: 0
 
   log:
