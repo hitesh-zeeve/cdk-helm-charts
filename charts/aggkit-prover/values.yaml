@@ -1,9 +1,9 @@
 replicaCount: 1
 
 image:
-  repository: ghcr.io/agglayer/aggkit-prover
+  repository: ghcr.io/md-tosif/aggkit-prover
   pullPolicy: IfNotPresent
-  tag: "1.8.0"
+  tag: 1.8.0
   command: ["/usr/local/bin/aggkit-prover"]
   args: ["run", "--config-path", "/etc/aggkit/aggkit-prover-config.toml"]
 
