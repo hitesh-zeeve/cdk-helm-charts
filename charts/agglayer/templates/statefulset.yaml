@@ -101,11 +101,20 @@ spec:
       {{- end }}
       volumes:
         - name: config
-          configMap:
-            name: agglayer-config
-            items:
-              - key: "config.toml"
-                path: "config.toml"
+          projected:
+            sources:
+            - configMap:
+                name: agglayer-config
+                items:
+                  - key: "config.toml"
+                    path: "config.toml"
+            {{- if eq .Values.aggregator.keyName "" }}
+            - secret:
+                name: {{ .Values.existingSecret }}
+                items:
+                  - key: {{ .Values.aggregator.keystoreFileName }}
+                    path: {{ .Values.aggregator.keystoreFileName }}
+            {{- end }}
         {{- if eq .Values.storage.type "hostPath" }}
         - name: data
           hostPath:
