@@ -1,11 +1,29 @@
-env: bali
+# Local development values
+# Usage: helm install bridge-ui ./charts/bridge-ui -f charts/bridge-ui/values.local.yaml
+#
+# For local access, you have 3 options:
+#
+# Option 1 - Port Forward (simplest, no ingress needed):
+#   kubectl port-forward svc/bridge-ui 8080:80
+#   Access at: http://localhost:8080
+#
+# Option 2 - NodePort (no ingress controller needed):
+#   Set service.type to NodePort below
+#   Access at: http://<node-ip>:<nodeport>
+#
+# Option 3 - Ingress (requires nginx ingress controller installed):
+#   Install controller first:
+#   kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/cloud/deploy.yaml
+#   Then set ingress.enabled to true below
+
+env: local
 
 podLabels:
-  name: myname
+  name: bridge-ui
   business_unit: agglayer
-  role: myrole
+  role: bridge-ui
   partner: Polygon
-  network: mynetwork
+  network: local
 
 container:
   image:
@@ -42,7 +60,7 @@ container:
     enableOutdatedNetworkModal: false
     enableDepositWarning: true
     enableReportForm: false
-    enableDepositLimits: true
+    # enableDepositLimits: true
     
     # Legacy compatibility
     zkEvmNetworkConfigPolygonZkEvmGlobalExitRootAddress: ""
@@ -58,48 +76,34 @@ container:
     # viteTokenDecimal: ""
 
 ingress:
-  enabled: true
-  hostname: ""  # Leave empty for local development without DNS
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # For local development with nginx ingress controller:
-    # kubernetes.io/ingress.class: nginx
-    # For GCP with cert-manager (production):
-    # cert-manager.io/issuer: gcp-cas-issuer
-    # cert-manager.io/issuer-kind: GoogleCASClusterIssuer
-    # cert-manager.io/issuer-group: cas-issuer.jetstack.io
-    # kubernetes.io/ingress.class: "gce-internal"
-    # kubernetes.io/ingress.allow-http: "false"
-    # external-dns.alpha.kubernetes.io/hostname: something.dev.polygon
+  enabled: false  # Disabled by default for local - use port-forward or NodePort instead
+  hostname: ""  # No hostname for local development
+  annotations:
+    kubernetes.io/ingress.class: nginx  # Requires nginx ingress controller to be installed
   tls:
-    enabled: false  # Set to true for production with certificates
+    enabled: false  # Disable TLS for local development
 
+# For local access without ingress controller, you can use NodePort:
+# Uncomment the lines below to enable NodePort service
 service:
-  type: ClusterIP  # ClusterIP, NodePort, or LoadBalancer
-  # nodePort: 30080  # Only used when type is NodePort
+  type: NodePort
+  nodePort: 30080  # Access via http://<node-ip>:30080
 
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 podSecurityContext: {}
-  # fsGroup: 2000
 
 securityContext: {}
-  # capabilities:
-  #   drop:
-  #   - ALL
-  # readOnlyRootFilesystem: true
-  # runAsNonRoot: true
-  # runAsUser: 1000
 
 resources:
   limits:
-    cpu: 4
-    memory: 8Gi
-  requests:
-    cpu: 1
+    cpu: 2
     memory: 4Gi
+  requests:
+    cpu: 500m
+    memory: 1Gi
 
 autoscaling:
   enabled: false
