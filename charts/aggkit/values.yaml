@@ -97,11 +97,11 @@ config:
 
     # Set this if aggsender.mode is AggchainProof
     aggkitProverClient:
-      url: "http://aggkit-prover:4446"
+      url: "http://aggkit-prover:4445"
       useTLS: true
 
     agglayerClient:
-      url: "http://agglayer:4444"
+      url: "http://agglayer-grpc:443"
       useTLS: true
 
     validatorClient:
@@ -119,7 +119,7 @@ config:
     mode: "PessimisticProof" # PessimisticProof (PP) or AggchainProof (FEP)
 
     agglayerClient:
-      url: "http://agglayer:4444"
+      url: "http://agglayer-grpc:443"
       useTLS: true
 
     privateKey:
