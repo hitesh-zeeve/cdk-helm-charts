@@ -58,6 +58,8 @@ config:
   agglayerProverEndpoint: "http://agglayer-prover:4445"
   gcpkms:
     enabled: false
+  log:
+    environment: development
 
 resources:
   limits:

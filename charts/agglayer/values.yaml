@@ -20,6 +20,13 @@ ports:
 
 existingSecret: op-secrets
 
+aggregator:
+  # If keyName is empty, agglayer will use keystore file from Secret
+  # If keyName is set, agglayer will use GCP KMS (controlled by config.gcpkms.enabled)
+  keyName: ""
+  keystoreFileName: "aggregator.keystore"
+  keystorePasswordSecretFieldName: "aggregatorKeystorePassword"
+
 domain: agglayer-test.polygon.technology
 createMigrationService: true
 

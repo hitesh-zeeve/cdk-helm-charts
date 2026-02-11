@@ -135,6 +135,14 @@ KeyName = {{ $keyName | quote }}
 KeyVersion = {{ $keyVersion | int }}
 {{- end }}
 
+{{- if and (eq .Values.aggregator.keyName "") (and $opSecrets $opSecrets.data) }}
+{{- if index $opSecrets.data .Values.aggregator.keystorePasswordSecretFieldName }}
+[auth.aggregator]
+Path = "/etc/agglayer/{{ .Values.aggregator.keystoreFileName }}"
+Password = {{ index $opSecrets.data .Values.aggregator.keystorePasswordSecretFieldName | b64dec | quote }}
+{{- end }}
+{{- end }}
+
 [l1]
 chain-id = {{ $l1ChainID | int }}
 node-url = {{ $l1NodeURL | quote }}
