@@ -1,25 +1,26 @@
+{{- if .Values.ingress.enabled }}
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
   name: {{ include "bridgeUI.fullname" . }}
+  {{- with .Values.ingress.annotations }}
   annotations:
-    cert-manager.io/issuer: gcp-cas-issuer
-    cert-manager.io/issuer-kind: GoogleCASClusterIssuer
-    cert-manager.io/issuer-group: cas-issuer.jetstack.io
-    kubernetes.io/ingress.class: "gce-internal"
-    # Since no static ip address is provided, only https can be used as
-    # protocol for the GCP-managed load balancer
-    # See https://cloud.google.com/kubernetes-engine/docs/how-to/internal-load-balance-ingress#https_between_client_and_load_balancer
-    kubernetes.io/ingress.allow-http: "false"
-    external-dns.alpha.kubernetes.io/hostname: {{ .Values.ingress.hostname }}
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
 spec:
+  {{- if .Values.ingress.tls.enabled }}
   tls:
     - hosts:
         - {{ .Values.ingress.hostname }}
       secretName: "{{ .Values.ingress.hostname }}-secret-tls"
+  {{- end }}
   rules:
+    {{- if .Values.ingress.hostname }}
     - host: {{ .Values.ingress.hostname }}
       http:
+    {{- else }}
+    - http:
+    {{- end }}
         paths:
           - path: /
             pathType: Prefix
@@ -28,3 +29,4 @@ spec:
                 name: {{ include "bridgeUI.fullname" . }}
                 port:
                   name: app-port
+{{- end }}

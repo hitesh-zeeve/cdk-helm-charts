@@ -6,9 +6,13 @@ metadata:
   labels:
     {{- include "bridgeUI.labels" . | nindent 4 }}
 spec:
+  type: {{ .Values.service.type | default "ClusterIP" }}
   ports:
     - name: app-port
       protocol: TCP
       port: {{ .Values.container.ports.app }}
+      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort }}
+      {{- end }}
   selector:
     {{- include "bridgeUI.selectorLabels" . | nindent 4 }}
