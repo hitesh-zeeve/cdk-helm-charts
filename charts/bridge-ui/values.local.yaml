@@ -27,33 +27,33 @@ podLabels:
 
 container:
   image:
-    repository: ghcr.io/0xpolygon/zkevm-bridge-ui
+    repository: priyanshu55/kinexys-bridge
     pullPolicy: IfNotPresent
-    tag: multi-network
+    tag: 1.2.0
 
   ports:
     app: 80
 
   env:
     # Ethereum L1 Configuration
-    ethereumRpcUrl: ""
-    ethereumExplorerUrl: "https://sepolia.etherscan.io"
-    ethereumBridgeContractAddress: ""
+    ethereumRpcUrl: "https://bridge.kinexys.zeeve.net/l1"
+    ethereumExplorerUrl: "https://reth.explorer.zeeve.net/"
+    ethereumBridgeContractAddress: "0xbE31765BBD2cf1cb7018F6D047ffC02cbd727f59"
     ethereumForceUpdateGlobalExitRoot: true
-    ethereumProofOfEfficiencyContractAddress: ""
-    ethereumRollupManagerAddress: ""
+    ethereumProofOfEfficiencyContractAddress: "0x603C86D91ca3085D7BcFF099533A8835692E65BE"
+    ethereumRollupManagerAddress: "0xbD2CC252599B1216EE5a202ce1fD2e19835739a0"
     
     # Polygon zkEVM L2 Configuration
-    polygonZkEvmRpcUrl: "http://cdk-erigon-rpc:8123"
-    polygonZkEvmExplorerUrl: ""
-    polygonZkEvmBridgeContractAddress: ""
-    polygonZkEvmNetworkId: ""
+    polygonZkEvmRpcUrl: "https://rpc.kinexys.zeeve.net"
+    polygonZkEvmExplorerUrl: "https://explorer.kinexys.zeeve.net/"
+    polygonZkEvmBridgeContractAddress: "0xbE31765BBD2cf1cb7018F6D047ffC02cbd727f59"
+    polygonZkEvmNetworkId: "3"
     # polygonZkEvmNativeGasToken: true
     # polygonZkEvmNativeGasTokenAddress: ""
     # polygonZkEvmWethTokenAddress: ""
     
     # Bridge API
-    bridgeApiUrl: ""
+    bridgeApiUrl: "https://bridge.kinexys.zeeve.net/service"
     
     # Feature Flags
     enableFiatExchangeRates: false
@@ -63,17 +63,17 @@ container:
     # enableDepositLimits: true
     
     # Legacy compatibility
-    zkEvmNetworkConfigPolygonZkEvmGlobalExitRootAddress: ""
+    zkEvmNetworkConfigPolygonZkEvmGlobalExitRootAddress: "0x9d35296Df31AD86cF1e7e6b39100396328511522"
     
     # Vite Build Configuration (optional for custom branding)
     # viteResolveRelativeUrls: false
-    # viteCustomization: ''
-    # viteName: ""
-    # viteAppFavicon: ""
-    # viteAppTitle: ""
-    # viteTokenName: ""
-    # viteTokenSymbol: ""
-    # viteTokenDecimal: ""
+    VITE_CUSTOMIZATION: '{"brand": {"name": "JPMC", "theme": {"primary": "#010214", "secondary": "#FFFFFF"}, "favicon": "https://f005.backblazeb2.com/file/tracehawk-prod/logo/Ternoa/Favicon.png", "logo": {"light": "https://f005.backblazeb2.com/file/tracehawk-prod/logo/Ternoa/Dark.png", "dark": "https://f005.backblazeb2.com/file/tracehawk-prod/logo/Ternoa/Dark.png"}}}'
+    VITE_NAME: "JPMC Bridge"
+    VITE_APP_FAVICON: "https://f005.backblazeb2.com/file/tracehawk-prod/logo/Ternoa/Favicon.png"
+    VITE_APP_TITLE: "JPMC Bridge"
+    VITE_TOKEN_NAME: "ETH"
+    VITE_TOKEN_SYMBOL: "ETH"
+    VITE_TOKEN_DECIMAL: "18"
 
 ingress:
   enabled: false  # Disabled by default for local - use port-forward or NodePort instead

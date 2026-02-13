@@ -32,7 +32,7 @@ data:
     [log]
     level = "debug"
     outputs = []
-    format = "json"
+    format = "pretty"
 
     [telemetry]
     prometheus-addr = "0.0.0.0:9090"
@@ -45,6 +45,7 @@ data:
     proving-timeout = "1h"
 
     [aggchain-proof-service.aggchain-proof-builder.primary-prover.network-prover]
+    sp1-cluster-endpoint = {{ $sp1NetworkRpcURL | quote }}
     proving-timeout = "1h"
 
     [aggchain-proof-service.aggchain-proof-builder.contracts]
@@ -67,3 +68,5 @@ data:
 
     [primary-prover.network-prover]
     proving-timeout = "1h"
+    sp1-cluster-endpoint = {{ $sp1NetworkRpcURL | quote }}
+

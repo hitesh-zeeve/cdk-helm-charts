@@ -5,7 +5,6 @@ config:
   aggsender:
 
     agglayerClient:
-
       useTLS: false
     
     aggkitProverClient:
@@ -14,25 +13,28 @@ config:
     optimisticModeEnabled: true
   
   aggoracle:
-    aggoracleCommitteeAddr: "0x23AFfdbeFf65A63Da1aD17bB95A7a8f89C006a75"
+    aggoracleCommitteeAddr: "0x2a9ABE516331b2b20ad521757186BaF92929435f"
 
   # L2 RPC and chain configuration for dev; update to match your L2
   l2:
     # Example dev chain id; override as needed
-    chainId: 2027
+    chainId: 2030
+    bridgeAddress: "0xbE31765BBD2cf1cb7018F6D047ffC02cbd727f59"
+
 
 
   # L1 config for dev; keep addresses in sync with your rollup deployment
   l1:
     chainId: 11155111
-    bridgeAddress: "0x96dE011d4f794ADAe25E6dF8F927EE71A7E58e76"
-    globalExitRootAddress: "0x1C889784Eb6873d43461a823DFb0Aa8E0e11DB6F"
-    polTokenAddress: "0xb6eFF1F58BDc08D032b74Da39512d90b1Db6263a"
-    rollupAddress: "0x8b86B44C6Ad3ac1e7481f0B26D1BDbd86A4dd92f"
-    rollupBlockNumber: "231"
-    rollupManagerAddress: "0x1D6fd904917fD52492c3A6E8d8d6829c288014E5"
-    rollupManagerBlockNumber: 30
+    bridgeAddress: "0xbE31765BBD2cf1cb7018F6D047ffC02cbd727f59"
+    globalExitRootAddress: "0x9d35296Df31AD86cF1e7e6b39100396328511522"
+    polTokenAddress: "0x9e1F487fc1bA3d5F25Ce5a4911477145916bd5e6"
+    rollupAddress: "0x6D108F3D2A3E20e98D1822Ac02db5FD283C87479"
+    rollupBlockNumber: "177360"
+    rollupManagerAddress: "0xbD2CC252599B1216EE5a202ce1fD2e19835739a0"
+    rollupManagerBlockNumber: 177360
     syncBlockChunkSize: 1000
+    rpcUrl: "http://46.165.235.105:8545"
 
 # Disable GKE-specific HealthCheckPolicy on local/dev clusters
 healthCheckPolicy:

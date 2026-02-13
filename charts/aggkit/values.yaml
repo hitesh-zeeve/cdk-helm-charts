@@ -97,7 +97,7 @@ config:
 
     # Set this if aggsender.mode is AggchainProof
     aggkitProverClient:
-      url: "http://aggkit-prover:4445"
+      url: "http://aggkit-prover:4446"
       useTLS: true
 
     agglayerClient:

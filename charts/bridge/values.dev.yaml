@@ -9,18 +9,17 @@ config:
     level: info
   bridgeServer:
     finalizedGEREnabled: true
-  etherman:
   claimTxManager:
     path: /etc/bridge/claimtx.keystore
-    areClaimsBetweenL2sEnabled: false
+    areClaimsBetweenL2sEnabled: true
   network:
-    l1GenBlockNumber: 30
-    polygonBridgeAddress: "0x96dE011d4f794ADAe25E6dF8F927EE71A7E58e76"
-    polygonZkEVMGlobalExitRootAddress: "0x1C889784Eb6873d43461a823DFb0Aa8E0e11DB6F"
-    polygonRollupManagerAddress: "0x1D6fd904917fD52492c3A6E8d8d6829c288014E5"
-    polygonZkEVMAddress: "0x8b86B44C6Ad3ac1e7481f0B26D1BDbd86A4dd92f"
+    l1GenBlockNumber: 177360
+    polygonBridgeAddress: "0xbE31765BBD2cf1cb7018F6D047ffC02cbd727f59"
+    polygonZkEVMGlobalExitRootAddress: "0x9d35296Df31AD86cF1e7e6b39100396328511522"
+    polygonRollupManagerAddress: "0xbD2CC252599B1216EE5a202ce1fD2e19835739a0"
+    polygonZkEVMAddress: "0x603C86D91ca3085D7BcFF099533A8835692E65BE"
     l2GenBlockNumbers: 0
-    l2PolygonBridgeAddress: "0x96dE011d4f794ADAe25E6dF8F927EE71A7E58e76"
+    l2PolygonBridgeAddress: "0xbE31765BBD2cf1cb7018F6D047ffC02cbd727f59"
     l2PolygonZkEVMGlobalExitRootAddress: "0xa40d5f56745a118d0906a34e69aec8c0db1cb8fa"
     requireSovereignChainSmcs: true
   synchronizer:

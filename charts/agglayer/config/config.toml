@@ -124,7 +124,7 @@ ceiling = {{ .Values.config.outbound.rpc.settle.gasPrice.ceiling | quote }}
 environment = {{ .Values.config.log.environment | quote }} # "production" or "development"
 level = {{ .Values.config.log.level | quote }}
 outputs = ["stderr"]
-format = "json"
+format = "pretty"
 
 {{- if .Values.config.gcpkms.enabled }}
 [auth.gcpkms]

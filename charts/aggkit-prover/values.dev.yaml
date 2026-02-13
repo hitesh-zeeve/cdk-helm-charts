@@ -6,12 +6,12 @@ image:
 config:
   networkId: 3
   mock: false
-  polygonRollupManager: "0x1D6fd904917fD52492c3A6E8d8d6829c288014E5"
+  polygonRollupManager: "0xbD2CC252599B1216EE5a202ce1fD2e19835739a0"
   globalExitRootManagerV2SovereignChain: "0xa40d5f56745a118d0906a34e69aec8c0db1cb8fa"
   genesis: |
     {
       "config": {
-        "chainId": 2027,
+        "chainId": 2030,
         "homesteadBlock": 0,
         "eip150Block": 0,
         "eip155Block": 0,
