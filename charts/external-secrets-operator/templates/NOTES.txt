@@ -1,0 +1,44 @@
+External Secrets Operator has been installed!
+
+Release Name: {{ .Release.Name }}
+Namespace: external-secrets
+
+{{- if .Values.aws.irsaRoleArn }}
+
+✓ IRSA Role ARN: {{ .Values.aws.irsaRoleArn }}
+✓ AWS Region: {{ .Values.aws.region }}
+✓ ServiceAccount: {{ .Values.external-secrets.serviceAccount.name }}
+✓ ClusterSecretStore: aws-secretsmanager
+
+{{- else }}
+
+⚠ WARNING: aws.irsaRoleArn is not set!
+Please ensure you set the IRSA role ARN for the ServiceAccount to work properly.
+
+Update your release with:
+  helm upgrade {{ .Release.Name }} . \
+    --namespace external-secrets \
+    --set aws.irsaRoleArn="arn:aws:iam::<account-id>:role/<role-name>"
+
+{{- end }}
+
+To verify the installation:
+
+1. Check ESO pods:
+   kubectl get pods -n external-secrets
+
+2. Verify ServiceAccount:
+   kubectl get sa {{ .Values.external-secrets.serviceAccount.name }} -n external-secrets -o yaml
+
+3. Check ClusterSecretStore status:
+   kubectl get clustersecretstore aws-secretsmanager
+   kubectl describe clustersecretstore aws-secretsmanager
+
+The ClusterSecretStore should show status "Valid: True" when ready.
+
+Next Steps:
+- Configure ExternalSecret resources in your application charts
+- Store secrets in AWS Secrets Manager following the naming convention:
+  /<environment>/<namespace>/<component>/<secret>
+
+For more information, see the README.md

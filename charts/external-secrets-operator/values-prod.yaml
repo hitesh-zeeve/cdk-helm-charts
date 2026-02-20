@@ -1,0 +1,12 @@
+# Example values for production environment
+
+# Production Environment
+aws:
+  irsaRoleArn: "arn:aws:iam::987654321098:role/eso-irsa-prod"
+  region: "us-east-1"
+
+# ServiceAccount annotation with IRSA role
+external-secrets:
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::987654321098:role/eso-irsa-prod"

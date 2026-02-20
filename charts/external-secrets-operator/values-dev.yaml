@@ -1,0 +1,12 @@
+# Example values for development environment
+
+# Development Environment
+aws:
+  irsaRoleArn: "arn:aws:iam::123456789012:role/eso-irsa-dev"
+  region: "us-east-1"
+
+# ServiceAccount annotation with IRSA role
+external-secrets:
+  serviceAccount:
+    annotations:
+      eks.amazonaws.com/role-arn: "arn:aws:iam::123456789012:role/eso-irsa-dev"

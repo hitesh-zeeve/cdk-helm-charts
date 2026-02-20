@@ -1,0 +1,11 @@
+apiVersion: v2
+name: external-secrets-operator
+description: External Secrets Operator installation with AWS Secrets Manager integration for EKS
+type: application
+version: 1.0.0
+appVersion: "0.9.11"
+
+dependencies:
+  - name: external-secrets
+    version: "0.9.11"
+    repository: https://charts.external-secrets.io
