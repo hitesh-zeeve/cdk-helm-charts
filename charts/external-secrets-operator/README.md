@@ -6,11 +6,10 @@ This chart installs the External Secrets Operator (ESO) with AWS Secrets Manager
 
 - Each environment (dev/stage/prod) has its own EKS cluster
 - Terraform creates IAM policy and IRSA role (external to this chart)
+- External Secrets Operator is installed directly from the official chart
 - This Helm chart:
-  - Installs External Secrets Operator
-  - Creates `external-secrets` namespace
-  - Creates ServiceAccount with IRSA annotation
-  - Deploys ClusterSecretStore for AWS Secrets Manager
+  - Creates ClusterSecretStore for AWS Secrets Manager
+  - References the ServiceAccount created by the ESO installation
 
 ## Prerequisites
 
@@ -22,57 +21,103 @@ This chart installs the External Secrets Operator (ESO) with AWS Secrets Manager
 
 ## Installation
 
-### 1. Update Dependencies
+### Step 1: Install External Secrets Operator
+
+First, install the External Secrets Operator from the official repository:
 
 ```bash
-helm dependency update
-```
+# Add the External Secrets Helm repository
+helm repo add external-secrets https://charts.external-secrets.io
+helm repo update
 
-### 2. Install the Chart
-
-```bash
-helm install external-secrets-operator . \
-  --namespace external-secrets \
+# Install the External Secrets Operator
+helm install external-secrets external-secrets/external-secrets \
+  -n external-secrets \
   --create-namespace \
-  --set aws.irsaRoleArn="arn:aws:iam::123456789012:role/eso-irsa-prod" \
-  --set aws.region="ap-south-1"
+  --set installCRDs=true \
+  --set serviceAccount.create=true \
+  --set serviceAccount.name=external-secrets-sa \
+  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME"
 ```
 
-### 3. Environment-Specific Values
+Replace `ACCOUNT_ID` and `ROLE_NAME` with your AWS account ID and IAM role name.
 
-Create environment-specific values files:
+### Step 2: Install ClusterSecretStore Configuration
 
-**values-dev.yaml**
-```yaml
-aws:
-  irsaRoleArn: "arn:aws:iam::123456789012:role/eso-irsa-dev"
-  region: "ap-south-1"
-```
-
-**values-prod.yaml**
-```yaml
-aws:
-  irsaRoleArn: "arn:aws:iam::987654321098:role/eso-irsa-prod"
-  region: "ap-south-1"
-```
-
-Install with environment-specific values:
+Then install this chart to create the ClusterSecretStore:
 
 ```bash
+cd external-secrets-operator
 helm install external-secrets-operator . \
-  --namespace external-secrets \
+  -n external-secrets \
+  --set aws.region="us-east-1" \
+  --set external-secrets.serviceAccount.name=external-secrets-sa
+```
+
+### Environment-Specific Installation
+
+**For Development:**
+```bash
+# Step 1: Install ESO with dev IRSA role
+helm install external-secrets external-secrets/external-secrets \
+  -n external-secrets \
   --create-namespace \
+  --set installCRDs=true \
+  --set serviceAccount.create=true \
+  --set serviceAccount.name=external-secrets-sa \
+  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="arn:aws:iam::123456789012:role/eso-irsa-dev"
+
+# Step 2: Install ClusterSecretStore
+helm install external-secrets-operator . \
+  -n external-secrets \
+  -f values-dev.yaml
+```
+
+**For Production:**
+```bash
+# Step 1: Install ESO with prod IRSA role
+helm install external-secrets external-secrets/external-secrets \
+  -n external-secrets \
+  --create-namespace \
+  --set installCRDs=true \
+  --set serviceAccount.create=true \
+  --set serviceAccount.name=external-secrets-sa \
+  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="arn:aws:iam::987654321098:role/eso-irsa-prod"
+
+# Step 2: Install ClusterSecretStore
+helm install external-secrets-operator . \
+  -n external-secrets \
   -f values-prod.yaml
 ```
 
+## Why Two Separate Installations?
+
+Helm 3 has a limitation where CRDs from subchart dependencies are not installed automatically. By installing the External Secrets Operator directly from the official repository, we ensure:
+- CRDs are properly installed with Helm ownership metadata
+- The operator runs with correct IRSA configuration
+- Future upgrades are handled cleanly
+
 ## Configuration
+
+### This Chart's Values
 
 | Parameter | Description | Default |
 |-----------|-------------|---------|
-| `aws.irsaRoleArn` | IAM role ARN for IRSA | `""` |
-| `aws.region` | AWS region for Secrets Manager | `"ap-south-1"` |
-| `external-secrets.installCRDs` | Install External Secrets CRDs | `true` |
-| `external-secrets.serviceAccount.name` | ServiceAccount name | `"external-secrets-sa"` |
+| `aws.region` | AWS region for Secrets Manager | `"us-east-1"` |
+| `external-secrets.serviceAccount.name` | ServiceAccount name (must match ESO installation) | `"external-secrets-sa"` |
+
+### External Secrets Operator Values
+
+When installing the ESO chart directly, you can configure:
+
+| Parameter | Description | Default |
+|-----------|-------------|---------|
+| `installCRDs` | Install External Secrets CRDs | `true` |
+| `serviceAccount.create` | Create ServiceAccount | `true` |
+| `serviceAccount.name` | ServiceAccount name | `"external-secrets-sa"` |
+| `serviceAccount.annotations` | ServiceAccount annotations (for IRSA) | `{}` |
+
+For full configuration options, see: https://github.com/external-secrets/external-secrets/tree/main/deploy/charts/external-secrets
 
 ## AWS Secrets Naming Convention
 
@@ -144,9 +189,17 @@ kubectl run aws-cli --rm -it --image=amazon/aws-cli --serviceaccount=external-se
 ## Uninstall
 
 ```bash
-helm uninstall external-secrets-operator --namespace external-secrets
+# Uninstall ClusterSecretStore configuration
+helm uninstall external-secrets-operator -n external-secrets
+
+# Uninstall External Secrets Operator
+helm uninstall external-secrets -n external-secrets
+
+# Delete namespace
 kubectl delete namespace external-secrets
 ```
+
+**Note:** Uninstalling the ESO chart will also remove the CRDs, which will delete all ExternalSecret resources across all namespaces.
 
 ## Next Steps
 

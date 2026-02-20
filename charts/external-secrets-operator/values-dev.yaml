@@ -1,12 +1,11 @@
 # Example values for development environment
+# Note: Install the External Secrets Operator separately first with IRSA configured
 
 # Development Environment
 aws:
-  irsaRoleArn: "arn:aws:iam::123456789012:role/eso-irsa-dev"
-  region: "us-east-1"
+  region: "us-east-2"
 
-# ServiceAccount annotation with IRSA role
+# ServiceAccount reference (must match the installed operator)
 external-secrets:
   serviceAccount:
-    annotations:
-      eks.amazonaws.com/role-arn: "arn:aws:iam::123456789012:role/eso-irsa-dev"
+    name: external-secrets-sa

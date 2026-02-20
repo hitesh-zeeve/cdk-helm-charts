@@ -1,12 +1,11 @@
 # Example values for production environment
+# Note: Install the External Secrets Operator separately first with IRSA configured
 
 # Production Environment
 aws:
-  irsaRoleArn: "arn:aws:iam::987654321098:role/eso-irsa-prod"
   region: "us-east-1"
 
-# ServiceAccount annotation with IRSA role
+# ServiceAccount reference (must match the installed operator)
 external-secrets:
   serviceAccount:
-    annotations:
-      eks.amazonaws.com/role-arn: "arn:aws:iam::987654321098:role/eso-irsa-prod"
+    name: external-secrets-sa

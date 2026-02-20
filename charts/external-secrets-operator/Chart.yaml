@@ -4,8 +4,3 @@ description: External Secrets Operator installation with AWS Secrets Manager int
 type: application
 version: 1.0.0
 appVersion: "0.9.11"
-
-dependencies:
-  - name: external-secrets
-    version: "0.9.11"
-    repository: https://charts.external-secrets.io

@@ -2,57 +2,13 @@
 
 # AWS configuration
 aws:
-  # IAM role ARN for IRSA (set per environment)
-  # Example: arn:aws:iam::123456789012:role/eso-irsa-prod
-  irsaRoleArn: ""
   # AWS region where secrets are stored
   region: "us-east-1"
 
-# External Secrets chart configuration
-# Note: The serviceAccount annotation must be set to the IRSA role ARN
-# This is done at install/upgrade time via --set or by updating values files
+# External Secrets configuration reference
+# The External Secrets Operator should be installed separately:
+# helm install external-secrets external-secrets/external-secrets -n external-secrets --create-namespace --set installCRDs=true
 external-secrets:
-  # Install CRDs
-  installCRDs: true
-
-  # ServiceAccount configuration
+  # ServiceAccount configuration (must match the installed operator)
   serviceAccount:
-    create: true
     name: external-secrets-sa
-    annotations: {}
-      # eks.amazonaws.com/role-arn: ""  # Set via aws.irsaRoleArn at install time
-
-  # Security context
-  securityContext:
-    fsGroup: 65534
-
-  # Resources
-  resources:
-    requests:
-      memory: "256Mi"
-      cpu: "100m"
-    limits:
-      memory: "512Mi"
-      cpu: "500m"
-
-  # Webhook configuration
-  webhook:
-    create: true
-    resources:
-      requests:
-        memory: "128Mi"
-        cpu: "50m"
-      limits:
-        memory: "256Mi"
-        cpu: "200m"
-
-  # Cert controller configuration
-  certController:
-    create: true
-    resources:
-      requests:
-        memory: "128Mi"
-        cpu: "50m"
-      limits:
-        memory: "256Mi"
-        cpu: "200m"
