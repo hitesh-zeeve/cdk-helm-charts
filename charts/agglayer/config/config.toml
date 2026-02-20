@@ -15,6 +15,7 @@
 {{- $fullNodeRPCs := "" }}
 {{- $proofSigners := "" }}
 
+{{- if not .Values.externalSecrets.enabled }}
 {{- $opSecrets := (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret) }}
 {{- if and $opSecrets $opSecrets.data }}
     {{- if (index $opSecrets.data "DATA_NODE_RPC_HOST") }}
@@ -62,6 +63,9 @@
     {{- if (index $opSecrets.data "DATA_NODE_PROOFSIGNERS") }}
         {{- $proofSigners = index $opSecrets.data "DATA_NODE_PROOFSIGNERS" | b64dec }}
     {{- end }}
+{{- end }}
+{{- else }}
+{{- /* When using ExternalSecrets, these values will be injected via envFrom */ -}}
 {{- end }}
 
 debug-mode = {{ .Values.config.debugMode }}
@@ -139,7 +143,7 @@ KeyVersion = {{ $keyVersion | int }}
 {{- if index $opSecrets.data .Values.aggregator.keystorePasswordSecretFieldName }}
 [auth.local]
 private-keys = [
-    { path = "/etc/agglayer/{{ .Values.aggregator.keystoreFileName }}", password = {{ index $opSecrets.data .Values.aggregator.keystorePasswordSecretFieldName | b64dec | quote }} },
+    { path = "/etc/agglayer/{{ .Values.aggregator.keystoreFileName }}", password = {{ if .Values.externalSecrets.enabled }}"${AGGREGATOR_KEYSTORE_PASSWORD}"{{ else }}{{ index $opSecrets.data .Values.aggregator.keystorePasswordSecretFieldName | b64dec | quote }}{{ end }} },
 ]
 {{- end }}
 {{- end }}

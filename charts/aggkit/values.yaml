@@ -1,4 +1,19 @@
-# For use in clusters with the 1P operator
+# External Secrets Operator configuration
+externalSecrets:
+  enabled: true
+  refreshInterval: 1h
+  storeRef:
+    kind: ClusterSecretStore
+    name: aws-secretsmanager
+  awsSecrets:
+    # Shared L1 RPC URL used across multiple components
+    sharedL1RpcUrl: "/dev/cdk-agglayer/shared/l1-rpc-url"
+    # Aggkit-specific credentials (keystore passwords)
+    credentials: "/dev/cdk-agglayer/aggkit/credentials"
+    # Aggkit keystores (base64-encoded binary files in AWS Secrets Manager)
+    keystores: "/dev/cdk-agglayer/aggkit/keystores"
+
+# Legacy 1Password support - deprecated, use externalSecrets instead
 # onePasswordSecrets:
 #   <name>: <item-path>
 

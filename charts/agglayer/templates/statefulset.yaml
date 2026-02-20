@@ -64,6 +64,20 @@ spec:
           args:
             - "--cfg"
             - "/etc/agglayer/config.toml"
+          {{- if .Values.externalSecrets.enabled }}
+          env:
+            {{- if eq .Values.aggregator.keyName "" }}
+            - name: AGGREGATOR_KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "agglayer.fullname" . }}-credentials
+                  key: aggregatorKeystorePassword
+            {{- end }}
+          envFrom:
+            # Inject all DATA_NODE_* environment variables from config secret
+            - secretRef:
+                name: {{ include "agglayer.fullname" . }}-config
+          {{- end }}
           ports:
             - containerPort: {{ .Values.ports.grpc }}
             - containerPort: {{ .Values.ports.readrpc }}
@@ -109,11 +123,21 @@ spec:
                   - key: "config.toml"
                     path: "config.toml"
             {{- if eq .Values.aggregator.keyName "" }}
+            {{- if .Values.externalSecrets.enabled }}
+            # Mount keystore from ExternalSecret
+            - secret:
+                name: {{ include "agglayer.fullname" . }}-keystores
+                items:
+                  - key: aggregator.keystore
+                    path: {{ .Values.aggregator.keystoreFileName }}
+            {{- else }}
+            # Legacy mode: mount from existingSecret
             - secret:
                 name: {{ .Values.existingSecret }}
                 items:
                   - key: {{ .Values.aggregator.keystoreFileName }}
                     path: {{ .Values.aggregator.keystoreFileName }}
+            {{- end }}
             {{- end }}
         {{- if eq .Values.storage.type "hostPath" }}
         - name: data

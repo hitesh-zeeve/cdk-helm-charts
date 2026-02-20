@@ -1,4 +1,4 @@
-{{- if and .Values.ingress.enabled .Values.tls.createSecret (not .Values.tls.existingSecretName) }}
+{{- if and (not .Values.externalSecrets.enabled) .Values.ingress.enabled .Values.tls.createSecret (not .Values.tls.existingSecretName) }}
 apiVersion: v1
 kind: Secret
 metadata:

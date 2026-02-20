@@ -1,13 +1,4 @@
-{{- $l1RpcURL := "" }}
-
-{{- $claimTxPrivateKeyPassword := "" }}
-
-{{- $bridgeDbName := "" }}
-{{- $dbUser := "" }}
-{{- $dbUserPassword := "" }}
-{{- $dbHost := "" }}
-{{- $dbPort := "" }}
-
+{{- if not .Values.externalSecrets.enabled }}
 {{- $opSecrets := (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret) }}
 {{- if $opSecrets.data }}
     {{- if (index $opSecrets.data "claimTxPrivateKeyPassword") }}
@@ -33,13 +24,8 @@
         {{- $dbPort = index $opSecrets.data "dbPort" | b64dec }}
     {{- end }}
 {{- end }}
+{{- end }}
 
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: {{ include "bridge.fullname" . }}
-data:
-  config.json: |-
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -54,15 +40,17 @@ data:
     [SyncDB]
     Database = "postgres"
       [SyncDB.PgStorage]
-      User = {{ $dbUser | quote }}
-      Password = {{ $dbUserPassword | quote }}
-      Name = {{ $bridgeDbName | quote }}
-      Host = {{ $dbHost | quote }}
-      Port = {{ $dbPort | quote }}
+      # Database credentials will be injected via environment variables
+      User = "${DB_USER}"
+      Password = "${DB_USER_PASSWORD}"
+      Name = "${BRIDGE_DB_NAME}"
+      Host = "${DB_HOST}"
+      Port = "${DB_PORT}"
       MaxConns = 200
 
     [Etherman]
-    l1URL = {{ $l1RpcURL | quote }}
+    # L1 RPC URL will be injected via environment variable
+    l1URL = "${L1_RPC_URL}"
     L2URLs = [{{ .Values.config.etherman.l2Url | quote }}]
 
     [Synchronizer]
@@ -86,11 +74,12 @@ data:
     [BridgeServer.DB]
     Database = "postgres"
       [BridgeServer.DB.PgStorage]
-      User = {{ $dbUser | quote }}
-      Password = {{ $dbUserPassword | quote }}
-      Name = {{ $bridgeDbName | quote }}
-      Host = {{ $dbHost | quote }}
-      Port = {{ $dbPort | quote }}
+      # Database credentials will be injected via environment variables
+      User = "${DB_USER}"
+      Password = "${DB_USER_PASSWORD}"
+      Name = "${BRIDGE_DB_NAME}"
+      Host = "${DB_HOST}"
+      Port = "${DB_PORT}"
       MaxConns = 200
 
     [NetworkConfig]
@@ -106,7 +95,8 @@ data:
 
     [ClaimTxManager]
     FrequencyToMonitorTxs = "5s"
-    PrivateKey = {Path = {{ .Values.config.claimTxManager.path | quote }}, Password = {{ $claimTxPrivateKeyPassword | quote }}}
+    # Keystore password will be injected via environment variable
+    PrivateKey = {Path = {{ .Values.config.claimTxManager.path | quote }}, Password = "${CLAIM_TX_PRIVATE_KEY_PASSWORD}"}
     Enabled = true
     RetryInterval = "1s"
     AreClaimsBetweenL2sEnabled = {{ .Values.config.claimTxManager.areClaimsBetweenL2sEnabled }}

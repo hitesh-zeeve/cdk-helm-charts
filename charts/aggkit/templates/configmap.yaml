@@ -1,5 +1,7 @@
-{{- $opSecrets := (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret) }}
-
+{{- $opSecrets := dict }}
+{{- if not .Values.externalSecrets.enabled }}
+{{- $opSecrets = (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret) }}
+{{- end }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,11 +10,8 @@ metadata:
 data:
   config.toml: |
     PathRWData = {{ .Values.storage.path | quote }}
-    {{- if .Values.config.l1.rpcUrl }}
-    L1URL = {{ .Values.config.l1.rpcUrl | quote }}
-    {{- else }}
-    L1URL = {{ index $opSecrets.data "l1RpcURL" | b64dec | quote }}
-    {{- end }}
+    # L1URL will be injected via environment variable from ExternalSecret or op-secrets
+    L1URL = "${L1_RPC_URL}"
     L2URL = {{ .Values.config.l2.rpcURL | quote }}
     OpNodeURL = {{ .Values.config.l2.opNodeURL | quote }}
 
@@ -49,7 +48,8 @@ data:
     {{ if .Values.config.aggsender.privateKey.keyName }}
     AggsenderPrivateKey = {Method ="GCP", KeyName={{ .Values.config.aggsender.privateKey.keyName | quote }}}
     {{ else }}
-    AggsenderPrivateKey = {Path = "/etc/aggkit/{{ .Values.config.aggsender.privateKey.keystoreFileName }}", Password = {{ index $opSecrets.data (.Values.config.aggsender.privateKey.keystoreFilePasswordSecretFieldName) | b64dec | quote }}}
+    # Password will be read from secret file mounted alongside config
+    AggsenderPrivateKey = {Path = "/etc/aggkit/{{ .Values.config.aggsender.privateKey.keystoreFileName }}", Password = "${AGGSENDER_KEYSTORE_PASSWORD}"}
     {{ end }}
 
     CertificateSendInterval = {{ .Values.config.aggsender.certificateSendInterval | quote }}
@@ -66,11 +66,11 @@ data:
     {{ if .Values.config.aggsender.optimisticModeEnabled }}
     [AggSender.OptimisticModeConfig]
     SovereignRollupAddr = {{ .Values.config.l1.rollupAddress | quote }}
-    # By default use the same key that aggsender  sign certs
+    # By default use the same key that aggsender sign certs
     {{ if .Values.config.aggsender.privateKey.keyName }}
     TrustedSequencerKey = {Method ="GCP", KeyName={{ .Values.config.aggsender.privateKey.keyName | quote }}}
     {{ else }}
-    TrustedSequencerKey = {Path = "/etc/aggkit/{{ .Values.config.aggsender.privateKey.keystoreFileName }}", Password = {{ index $opSecrets.data (.Values.config.aggsender.privateKey.keystoreFilePasswordSecretFieldName) | b64dec | quote }}}
+    TrustedSequencerKey = {Path = "/etc/aggkit/{{ .Values.config.aggsender.privateKey.keystoreFileName }}", Password = "${AGGSENDER_KEYSTORE_PASSWORD}"}
     {{ end }}
     OpNodeURL = {{ .Values.config.l2.opNodeURL | quote }}
     RequireKeyMatchTrustedSequencer = true
@@ -108,7 +108,13 @@ data:
     {{ if .Values.config.aggoracle.privateKey.keyName }}
     PrivateKeys = [{Method ="GCP", KeyName={{ .Values.config.aggoracle.privateKey.keyName | quote }}}]
     {{ else }}
-    PrivateKeys = [{Path = "/etc/aggkit/{{ .Values.config.aggoracle.privateKey.keystoreFileName }}", Password = {{ index $opSecrets.data (.Values.config.aggoracle.privateKey.keystoreFilePasswordSecretFieldName) | b64dec | quote }}}]
+    {{- if .Values.externalSecrets.enabled }}
+    # Password will be injected via environment variable from ExternalSecret
+    PrivateKeys = [{Path = "/etc/aggkit/{{ .Values.config.aggoracle.privateKey.keystoreFileName }}", Password = "${AGGORACLE_KEYSTORE_PASSWORD}"}]
+    {{- else }}
+    # Legacy mode: password from existing secret
+    PrivateKeys = [{Path = "/etc/aggkit/{{ .Values.config.aggoracle.privateKey.keystoreFileName }}", Password = {{ if and $opSecrets $opSecrets.data }}{{ index $opSecrets.data (.Values.config.aggoracle.privateKey.keystoreFilePasswordSecretFieldName) | b64dec | quote }}{{ else }}""{{ end }}}]
+    {{- end }}
     {{ end }}
 
     [AggOracle.EVMSender.EthTxManager.Etherman]
@@ -150,7 +156,13 @@ data:
     {{ if $pk.keyName }}
     Signer = {Method ="GCP", KeyName={{ $pk.keyName | quote }}}
     {{ else }}
-    Signer = {Path = "/etc/aggkit/{{ $pk.keystoreFileName }}", Password = {{ index $opSecrets.data ($pk.keystoreFilePasswordSecretFieldName) | b64dec | quote }}}
+    {{- if .Values.externalSecrets.enabled }}
+    # Password will be injected via environment variable from ExternalSecret  
+    Signer = {Path = "/etc/aggkit/{{ $pk.keystoreFileName }}", Password = "${AGGSENDER_VALIDATOR_KEYSTORE_PASSWORD}"}
+    {{- else }}
+    # Legacy mode: password from existing secret
+    Signer = {Path = "/etc/aggkit/{{ $pk.keystoreFileName }}", Password = {{ if and $opSecrets $opSecrets.data }}{{ index $opSecrets.data ($pk.keystoreFilePasswordSecretFieldName) | b64dec | quote }}{{ else }}""{{ end }}}
+    {{- end }}
     {{ end }}
     Mode={{ $mode | quote }}
 

@@ -55,6 +55,61 @@ spec:
             - {{ . }} {{- end}}
           {{- end}}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          {{- if .Values.externalSecrets.enabled }}
+          env:
+            - name: L1_RPC_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bridge.fullname" . }}-shared-l1
+                  key: l1RpcURL
+            - name: CLAIM_TX_PRIVATE_KEY_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bridge.fullname" . }}-credentials
+                  key: claimTxPrivateKeyPassword
+            - name: BRIDGE_DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bridge.fullname" . }}-postgres
+                  key: bridgeDbName
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bridge.fullname" . }}-postgres
+                  key: dbUser
+            - name: DB_USER_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bridge.fullname" . }}-postgres
+                  key: dbUserPassword
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bridge.fullname" . }}-postgres
+                  key: dbHost
+            - name: DB_PORT
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bridge.fullname" . }}-postgres
+                  key: dbPort
+          {{- else }}
+          # Legacy mode: use lookup-based environment variable injection
+          env:
+            - name: L1_RPC_URL
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "l1RpcURL" | b64dec | quote }}{{ else }}""{{ end }}
+            - name: CLAIM_TX_PRIVATE_KEY_PASSWORD
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "claimTxPrivateKeyPassword" | b64dec | quote }}{{ else }}""{{ end }}
+            - name: BRIDGE_DB_NAME
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "bridgeDbName" | b64dec | quote }}{{ else }}""{{ end }}
+            - name: DB_USER
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "dbUser" | b64dec | quote }}{{ else }}""{{ end }}
+            - name: DB_USER_PASSWORD
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "dbUserPassword" | b64dec | quote }}{{ else }}""{{ end }}
+            - name: DB_HOST
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "dbHost" | b64dec | quote }}{{ else }}""{{ end }}
+            - name: DB_PORT
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "dbPort" | b64dec | quote }}{{ else }}""{{ end }}
+          {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.service.port }}
@@ -78,11 +133,21 @@ spec:
                 items:
                   - key: "bridge-config.toml"
                     path: "bridge-config.toml"
+            {{- if .Values.externalSecrets.enabled }}
+            # Mount keystore from ExternalSecret
+            - secret:
+                name: {{ include "bridge.fullname" . }}-keystores
+                items:
+                  - key: {{ .Values.secretItem.key }}
+                    path: {{ .Values.secretItem.path }}
+            {{- else }}
+            # Legacy mode: mount from existingSecret
             - secret:
                 name: {{ .Values.existingSecret }}
                 items:
                   - key: {{ .Values.secretItem.key }}
                     path: {{ .Values.secretItem.path }}
+            {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}

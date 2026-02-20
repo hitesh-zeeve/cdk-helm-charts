@@ -1,3 +1,20 @@
+# External Secrets Operator configuration
+externalSecrets:
+  enabled: true
+  refreshInterval: 1h
+  storeRef:
+    kind: ClusterSecretStore
+    name: aws-secretsmanager
+  awsSecrets:
+    # Shared L1 RPC URL used across multiple components
+    sharedL1RpcUrl: "/dev/cdk-agglayer/shared/l1-rpc-url"
+    # PostgreSQL database credentials (bridge-specific)
+    postgres: "/dev/cdk-agglayer/bridge/postgres"
+    # Bridge-specific credentials (claim tx keystore password)
+    credentials: "/dev/cdk-agglayer/bridge/credentials"
+    # Bridge keystores (base64-encoded binary files in AWS Secrets Manager)
+    keystores: "/dev/cdk-agglayer/bridge/keystores"
+
 env: bali
 
 podLabels:

@@ -1,3 +1,14 @@
+# External Secrets Operator configuration
+externalSecrets:
+  enabled: true
+  refreshInterval: 1h
+  storeRef:
+    kind: ClusterSecretStore
+    name: aws-secretsmanager
+  awsSecrets:
+    # Shared L1 RPC URL used across multiple components
+    sharedL1RpcUrl: "/dev/cdk-agglayer/shared/l1-rpc-url"
+
 env: bali
 
 podLabels:

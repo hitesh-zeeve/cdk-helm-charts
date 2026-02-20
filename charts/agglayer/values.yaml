@@ -1,3 +1,24 @@
+# External Secrets Operator configuration
+externalSecrets:
+  enabled: true
+  refreshInterval: 1h
+  storeRef:
+    kind: ClusterSecretStore
+    name: aws-secretsmanager
+  awsSecrets:
+    # Agglayer-specific credentials (keystore password)
+    credentials: "/dev/cdk-agglayer/agglayer/credentials"
+    # Agglayer keystores (base64-encoded binary files in AWS Secrets Manager)
+    keystores: "/dev/cdk-agglayer/agglayer/keystores"
+    # TLS certificate for ingress
+    tls: "/dev/cdk-agglayer/agglayer/tls"
+    # OAuth credentials for GKE BackendConfig
+    oauth: "/dev/cdk-agglayer/agglayer/oauth"
+    # Datadog API key
+    datadog: "/dev/cdk-agglayer/agglayer/datadog"
+    # Configuration secrets (DATA_NODE_* fields, GCP KMS, etc.)
+    config: "/dev/cdk-agglayer/agglayer/config"
+
 env: bali
 
 podLabels:

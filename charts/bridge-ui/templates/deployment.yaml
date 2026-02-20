@@ -1,9 +1,11 @@
 {{- $l1RpcURL := "" }}
+{{- if not .Values.externalSecrets.enabled }}
 {{- $opSecrets := (lookup "v1" "Secret" .Release.Namespace "op-secrets") }}
 {{- if $opSecrets.data }}
     {{- if (index $opSecrets.data "l1RpcURL") }}
         {{- $l1RpcURL = index $opSecrets.data "l1RpcURL" | b64dec }}
     {{- end }}
+{{- end }}
 {{- end }}
 
 apiVersion: apps/v1
@@ -51,7 +53,14 @@ spec:
           env:
             # Ethereum L1 Configuration
             - name: ETHEREUM_RPC_URL
-              value: {{ .Values.container.env.ethereumRpcUrl | default $l1RpcURL | quote }}
+              {{- if .Values.externalSecrets.enabled }}
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "bridgeUI.fullname" . }}-shared-l1
+                  key: l1RpcURL
+              {{- else }}
+              value: {{ $l1RpcURL | quote }}
+              {{- end }}
             - name: ETHEREUM_EXPLORER_URL
               value: {{ .Values.container.env.ethereumExplorerUrl | quote }}
             - name: ETHEREUM_BRIDGE_CONTRACT_ADDRESS

@@ -79,6 +79,52 @@ spec:
             - run
             - --cfg=/etc/aggkit/config.toml
             - --components={{ .Values.config.components | join "," }}
+          {{- if .Values.externalSecrets.enabled }}
+          env:
+            - name: L1_RPC_URL
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aggkit.fullname" . }}-shared-l1
+                  key: l1RpcURL
+            {{- if and (has "aggsender" .Values.config.components) (eq .Values.config.aggsender.privateKey.keyName "") }}
+            - name: AGGSENDER_KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aggkit.fullname" . }}-credentials
+                  key: aggsenderKeystorePassword
+            {{- end }}
+            {{- if and (has "aggsender-validator" .Values.config.components) (eq .Values.config.aggsenderValidator.privateKey.keyName "") }}
+            - name: AGGSENDER_VALIDATOR_KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aggkit.fullname" . }}-credentials
+                  key: aggsenderValidatorKeystorePassword
+            {{- end }}
+            {{- if and (has "aggoracle" .Values.config.components) (eq .Values.config.aggoracle.privateKey.keyName "") }}
+            - name: AGGORACLE_KEYSTORE_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "aggkit.fullname" . }}-credentials
+                  key: aggoracleKeystorePassword
+            {{- end }}
+          {{- else }}
+          # Legacy mode: use lookup-based environment variable injection
+          env:
+            - name: L1_RPC_URL
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "l1RpcURL" | b64dec | quote }}{{ else }}""{{ end }}
+            {{- if and (has "aggsender" .Values.config.components) (eq .Values.config.aggsender.privateKey.keyName "") }}
+            - name: AGGSENDER_KEYSTORE_PASSWORD
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "aggsenderKeystorePassword" | b64dec | quote }}{{ else }}""{{ end }}
+            {{- end }}
+            {{- if and (has "aggsender-validator" .Values.config.components) (eq .Values.config.aggsenderValidator.privateKey.keyName "") }}
+            - name: AGGSENDER_VALIDATOR_KEYSTORE_PASSWORD
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "aggsenderValidatorKeystorePassword" | b64dec | quote }}{{ else }}""{{ end }}
+            {{- end }}
+            {{- if and (has "aggoracle" .Values.config.components) (eq .Values.config.aggoracle.privateKey.keyName "") }}
+            - name: AGGORACLE_KEYSTORE_PASSWORD
+              value: {{ if (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data }}{{ index (lookup "v1" "Secret" .Release.Namespace .Values.existingSecret).data "aggoracleKeystorePassword" | b64dec | quote }}{{ else }}""{{ end }}
+            {{- end }}
+          {{- end }}
           ports:
             - name: aggsender
               containerPort: {{ .Values.container.ports.aggsender }}
@@ -120,6 +166,25 @@ spec:
                 items:
                   - key: "config.toml"
                     path: "config.toml"
+            {{- if .Values.externalSecrets.enabled }}
+            # Mount keystores from ExternalSecret
+            - secret:
+                name: {{ include "aggkit.fullname" . }}-keystores
+                items:
+                  {{- if and (has "aggsender" .Values.config.components) (eq .Values.config.aggsender.privateKey.keyName "") }}
+                  - key: aggsender.keystore
+                    path: {{ .Values.config.aggsender.privateKey.keystoreFileName }}
+                  {{- end }}
+                  {{- if and (has "aggsender-validator" .Values.config.components) (eq .Values.config.aggsenderValidator.privateKey.keyName "") }}
+                  - key: aggsenderValidator.keystore
+                    path: {{ .Values.config.aggsenderValidator.privateKey.keystoreFileName }}
+                  {{- end }}
+                  {{- if and (has "aggoracle" .Values.config.components) (eq .Values.config.aggoracle.privateKey.keyName "") }}
+                  - key: aggoracle.keystore
+                    path: {{ .Values.config.aggoracle.privateKey.keystoreFileName }}
+                  {{- end }}
+            {{- else }}
+            # Legacy mode: mount from existingSecret
             - secret:
                 name: {{ .Values.existingSecret }}
                 items:
@@ -135,6 +200,7 @@ spec:
                   - key: {{ .Values.config.aggoracle.privateKey.keystoreFileName }}
                     path: {{ .Values.config.aggoracle.privateKey.keystoreFileName }}
                   {{- end }}
+            {{- end }}
         {{- end }}
   volumeClaimTemplates:
     - metadata:
