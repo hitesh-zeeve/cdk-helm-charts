@@ -62,7 +62,7 @@ config:
 
   gcpkms:
     # Set false for private/local clusters (no GCP KMS)
-    enabled: true
+    enabled: false
 
   epoch:
     blockClock:

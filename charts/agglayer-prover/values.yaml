@@ -25,11 +25,11 @@ podAnnotations: {}
 
 resources:
   limits:
-    cpu: 4
-    memory: 4Gi
+    cpu: 36
+    memory: 40Gi
   requests:
-    cpu: 1
-    memory: 2Gi
+    cpu: 32
+    memory: 30Gi
 
 config:
   maxConcurrencyLimit: 100

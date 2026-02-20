@@ -1,0 +1,20 @@
+{{- if .Values.extraDatabases }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "postgres.fullname" . }}-initdb
+  labels:
+    {{- include "postgres.labels" . | nindent 4 }}
+data:
+  init-databases.sh: |-
+    #!/bin/bash
+    set -e
+
+    echo "Creating additional databases..."
+
+    psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" <<-EOSQL
+  {{- range .Values.extraDatabases }}
+      CREATE DATABASE "{{ . }}";
+  {{- end }}
+    EOSQL
+{{- end }}

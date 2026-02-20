@@ -1,0 +1,38 @@
+replicaCount: 1
+
+image:
+  repository: postgres
+  tag: "16.0"
+  pullPolicy: IfNotPresent
+
+postgres:
+  user: bridge_user
+  password: bridge_password # Consider overriding via secret in production
+  database: postgres # Primary database name (optional, used for POSTGRES_DB)
+  existingSecret: "" # If set, use this secret for POSTGRES_PASSWORD (key: password)
+
+service:
+  type: ClusterIP
+  port: 5432
+
+persistence:
+  enabled: true
+  size: 10Gi
+  storageClass: ""
+
+resources: {}
+
+podAnnotations: {}
+podLabels: {}
+
+podSecurityContext: {}
+securityContext: {}
+
+affinity: {}
+nodeSelector: {}
+tolerations: []
+
+# List of additional databases to create on first startup
+# These will be created via an init script mounted into /docker-entrypoint-initdb.d
+extraDatabases: 
+ - bridge_db

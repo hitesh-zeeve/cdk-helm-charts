@@ -47,7 +47,7 @@ config:
   bridgeServer:
     finalizedGEREnabled: true
   etherman:
-    l2Url: "http://op-geth.op-succinct-l2.svc.cluster.local:8123"
+    l2Url: "http://op-succinct-sequencer.op-succinct.svc.cluster.local:8545"
   claimTxManager:
     path: /etc/bridge/claimtx.keystore
     areClaimsBetweenL2sEnabled: false

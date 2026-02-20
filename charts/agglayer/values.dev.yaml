@@ -60,6 +60,10 @@ config:
     enabled: false
   log:
     environment: development
+  
+  epoch:
+    blockClock:
+      genesisBlock: 10250332
 
 resources:
   limits:
