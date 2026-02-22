@@ -231,7 +231,7 @@ kubectl describe clustersecretstore aws-secretsmanager
 
 Example ClusterSecretStore (should already exist via Terraform):
 ```yaml
-apiVersion: external-secrets.io/v1beta1
+apiVersion: external-secrets.io/v1
 kind: ClusterSecretStore
 metadata:
   name: aws-secretsmanager
