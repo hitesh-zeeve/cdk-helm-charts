@@ -191,6 +191,31 @@ resources:
     cpu: 1
     memory: 4Gi
 
+# Probes (override per-environment as needed)
+startupProbe:
+  httpGet:
+    path: /health
+    port: aggsender # named container port
+  periodSeconds: 5
+  timeoutSeconds: 2
+  failureThreshold: 60
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: aggsender
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: aggsender
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
+
 # GKE-specific health check policy (networking.gke.io/HealthCheckPolicy)
 healthCheckPolicy:
   enabled: true

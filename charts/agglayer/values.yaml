@@ -196,6 +196,31 @@ resources:
     cpu: 1
     memory: 4Gi
 
+# Probes (override per-environment as needed)
+startupProbe:
+  httpGet:
+    path: /health
+    port: readrpc # named container port (defaults to ports.readrpc)
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 60 # ~5 minutes max startup
+
+readinessProbe:
+  httpGet:
+    path: /health
+    port: readrpc
+  periodSeconds: 5
+  timeoutSeconds: 1
+  failureThreshold: 3
+
+livenessProbe:
+  httpGet:
+    path: /health
+    port: readrpc
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 3
+
 autoscaling:
   enabled: false
   minReplicas: 1

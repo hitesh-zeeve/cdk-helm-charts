@@ -31,6 +31,28 @@ resources:
     cpu: 32
     memory: 30Gi
 
+# Probes (override per-environment as needed)
+startupProbe:
+  grpc:
+    port: 4445
+  periodSeconds: 5
+  timeoutSeconds: 2
+  failureThreshold: 30
+
+readinessProbe:
+  grpc:
+    port: 4445
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
+
+livenessProbe:
+  grpc:
+    port: 4445
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
+
 config:
   maxConcurrencyLimit: 100
   maxRequestDuration: 300

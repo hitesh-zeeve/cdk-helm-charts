@@ -51,3 +51,28 @@ resources:
   requests:
     cpu: 1
     memory: 4Gi
+
+# Probes (override per-environment as needed)
+startupProbe:
+  grpc:
+    port: 4446
+    service: "aggkit.prover.v1.AggchainProofService"
+  periodSeconds: 5
+  timeoutSeconds: 2
+  failureThreshold: 30
+
+readinessProbe:
+  grpc:
+    port: 4446
+    service: "aggkit.prover.v1.AggchainProofService"
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
+
+livenessProbe:
+  grpc:
+    port: 4446
+    service: "aggkit.prover.v1.AggchainProofService"
+  periodSeconds: 10
+  timeoutSeconds: 2
+  failureThreshold: 3
