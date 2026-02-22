@@ -101,6 +101,40 @@ resources:
     cpu: 1
     memory: 4Gi
 
+# Probes (override per-environment as needed)
+startupProbe:
+  httpGet:
+    path: /
+    port: 80
+    scheme: HTTP
+  initialDelaySeconds: 10
+  periodSeconds: 5
+  timeoutSeconds: 3
+  successThreshold: 1
+  failureThreshold: 12
+
+livenessProbe:
+  httpGet:
+    path: /
+    port: 80
+    scheme: HTTP
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 3
+  successThreshold: 1
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: 80
+    scheme: HTTP
+  initialDelaySeconds: 0
+  periodSeconds: 5
+  timeoutSeconds: 3
+  successThreshold: 1
+  failureThreshold: 2
+
 autoscaling:
   enabled: false
   minReplicas: 1
