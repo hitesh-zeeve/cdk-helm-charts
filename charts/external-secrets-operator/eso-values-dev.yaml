@@ -1,0 +1,14 @@
+# Values for installing the External Secrets Operator (official chart)
+# Usage:
+#   helm install external-secrets external-secrets/external-secrets \
+#     -n external-secrets --create-namespace \
+#     -f eso-values-dev.yaml
+
+installCRDs: true
+
+serviceAccount:
+  create: true
+  name: external-secrets-sa
+  annotations:
+    # Replace with your dev IRSA role ARN
+    eks.amazonaws.com/role-arn: arn:aws:iam::379487790755:role/op-succinct-test-primary-secrets-manager-irsa

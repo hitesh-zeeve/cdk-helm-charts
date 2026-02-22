@@ -1,0 +1,14 @@
+# Values for installing the External Secrets Operator (official chart)
+# Usage:
+#   helm install external-secrets external-secrets/external-secrets \
+#     -n external-secrets --create-namespace \
+#     -f eso-values-prod.yaml
+
+installCRDs: true
+
+serviceAccount:
+  create: true
+  name: external-secrets-sa
+  annotations:
+    # Replace with your prod IRSA role ARN
+    eks.amazonaws.com/role-arn: arn:aws:iam::987654321098:role/eso-irsa-prod

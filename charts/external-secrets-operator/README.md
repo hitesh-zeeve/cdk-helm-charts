@@ -30,17 +30,14 @@ First, install the External Secrets Operator from the official repository:
 helm repo add external-secrets https://charts.external-secrets.io
 helm repo update
 
-# Install the External Secrets Operator
+# Install the External Secrets Operator (CRDs included)
 helm install external-secrets external-secrets/external-secrets \
   -n external-secrets \
   --create-namespace \
-  --set installCRDs=true \
-  --set serviceAccount.create=true \
-  --set serviceAccount.name=external-secrets-sa \
-  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="arn:aws:iam::ACCOUNT_ID:role/ROLE_NAME"
+  -f eso-values-prod.yaml
 ```
 
-Replace `ACCOUNT_ID` and `ROLE_NAME` with your AWS account ID and IAM role name.
+Edit `eso-values-prod.yaml` and set `serviceAccount.annotations.eks.amazonaws.com/role-arn` to your IRSA role ARN.
 
 ### Step 2: Install ClusterSecretStore Configuration
 
@@ -50,22 +47,18 @@ Then install this chart to create the ClusterSecretStore:
 cd external-secrets-operator
 helm install external-secrets-operator . \
   -n external-secrets \
-  --set aws.region="us-east-1" \
-  --set external-secrets.serviceAccount.name=external-secrets-sa
+  -f values-prod.yaml
 ```
 
 ### Environment-Specific Installation
 
 **For Development:**
 ```bash
-# Step 1: Install ESO with dev IRSA role
+# Step 1: Install ESO (dev)
 helm install external-secrets external-secrets/external-secrets \
   -n external-secrets \
   --create-namespace \
-  --set installCRDs=true \
-  --set serviceAccount.create=true \
-  --set serviceAccount.name=external-secrets-sa \
-  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="arn:aws:iam::123456789012:role/eso-irsa-dev"
+  -f eso-values-dev.yaml
 
 # Step 2: Install ClusterSecretStore
 helm install external-secrets-operator . \
@@ -75,14 +68,11 @@ helm install external-secrets-operator . \
 
 **For Production:**
 ```bash
-# Step 1: Install ESO with prod IRSA role
+# Step 1: Install ESO (prod)
 helm install external-secrets external-secrets/external-secrets \
   -n external-secrets \
   --create-namespace \
-  --set installCRDs=true \
-  --set serviceAccount.create=true \
-  --set serviceAccount.name=external-secrets-sa \
-  --set serviceAccount.annotations."eks\.amazonaws\.com/role-arn"="arn:aws:iam::987654321098:role/eso-irsa-prod"
+  -f eso-values-prod.yaml
 
 # Step 2: Install ClusterSecretStore
 helm install external-secrets-operator . \
