@@ -565,6 +565,61 @@ kubectl rollout restart deployment bridge-ui -n cdk-agglayer
 kubectl rollout status statefulset aggkit -n cdk-agglayer
 ```
 
+### Issue 5: Pod FailedMount - secret "<release>-keystores" not found (ESO AccessDenied)
+
+**Symptoms:**
+```bash
+# Pod events
+kubectl describe pod <bridge-pod> -n <ns>
+# ...
+# Warning  FailedMount  MountVolume.SetUp failed for volume "bridge-config" : secret "bridge-keystores" not found
+
+# ExternalSecret events
+kubectl describe externalsecret <bridge-keystores-externalsecret> -n <ns>
+# ...
+# Warning  UpdateFailed  error processing spec.dataFrom[0].extract ...
+# AccessDeniedException: User ... is not authorized to perform: secretsmanager:GetSecretValue on resource: /<env>/cdk-agglayer/bridge/keystores
+```
+
+**Root cause:**
+- The bridge Deployment mounts a Kubernetes Secret named `<release>-keystores`.
+- That Secret is created by ESO from an `ExternalSecret`.
+- If ESO cannot read the AWS secret (IAM/KMS/region/path), the Kubernetes Secret is never created, and the pod fails to mount.
+
+**Diagnosis:**
+```bash
+# 1) Confirm the ExternalSecret exists and check its status
+kubectl get externalsecret -n <ns> | grep -i bridge
+kubectl describe externalsecret <bridge-keystores-externalsecret> -n <ns>
+
+# 2) Confirm the generated Kubernetes Secret is missing
+kubectl get secret -n <ns> | grep -E 'bridge.*keystores' || true
+
+# 3) Confirm the SecretStore reference used by the chart exists
+kubectl get clustersecretstore aws-secretsmanager
+```
+
+**Solutions:**
+
+1. **Fix AWS IAM permissions for the ESO IRSA role** (the role referenced by the ESO ServiceAccount):
+   - Allow at minimum: `secretsmanager:GetSecretValue` and `secretsmanager:DescribeSecret` on your secret ARNs.
+   - If the secret uses a customer-managed KMS key, also allow `kms:Decrypt`.
+   - Note: Secrets Manager ARNs include a random suffix, so prefer `...:secret:/<env>/cdk-agglayer/bridge/*` (or `*-suffix` patterns) rather than an exact name.
+
+2. **Force ESO to resync and recreate the Kubernetes Secret:**
+```bash
+kubectl annotate externalsecret <bridge-keystores-externalsecret> \
+  -n <ns> force-sync=$(date +%s) --overwrite
+
+kubectl get secret <release>-keystores -n <ns>
+```
+
+3. **Restart the bridge Deployment to re-attempt the mount:**
+```bash
+kubectl rollout restart deployment/<release> -n <ns>
+kubectl rollout status deployment/<release> -n <ns>
+```
+
 ### Issue 6: Multiple Components, One Secret Path Issue
 
 **Symptoms:**

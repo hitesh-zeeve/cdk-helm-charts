@@ -128,12 +128,12 @@ spec:
         - name: bridge-config
           projected:
             sources:
-            - configMap:
-                name: {{ include "bridge.fullname" . }}
+            {{- if .Values.externalSecrets.enabled }}
+            - secret:
+                name: {{ include "bridge.fullname" . }}-config
                 items:
                   - key: "bridge-config.toml"
                     path: "bridge-config.toml"
-            {{- if .Values.externalSecrets.enabled }}
             # Mount keystore from ExternalSecret
             - secret:
                 name: {{ include "bridge.fullname" . }}-keystores
@@ -141,6 +141,11 @@ spec:
                   - key: {{ .Values.secretItem.key }}
                     path: {{ .Values.secretItem.path }}
             {{- else }}
+            - configMap:
+                name: {{ include "bridge.fullname" . }}
+                items:
+                  - key: "bridge-config.toml"
+                    path: "bridge-config.toml"
             # Legacy mode: mount from existingSecret
             - secret:
                 name: {{ .Values.existingSecret }}

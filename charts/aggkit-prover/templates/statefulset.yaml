@@ -116,11 +116,19 @@ spec:
         - name: aggkit-prover-config
           projected:
             sources:
+            {{- if .Values.externalSecrets.enabled }}
+            - secret:
+                name: {{ include "aggkit-prover.fullname" . }}-config
+                items:
+                  - key: "aggkit-prover-config.toml"
+                    path: "aggkit-prover-config.toml"
+            {{- else }}
             - configMap:
                 name: {{ include "aggkit-prover.fullname" . }}
                 items:
                   - key: "aggkit-prover-config.toml"
                     path: "aggkit-prover-config.toml"
+            {{- end }}
             - configMap:
                 name: {{ include "aggkit-prover.fullname" . }}-genesis
                 items:

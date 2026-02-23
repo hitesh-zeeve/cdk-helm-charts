@@ -13,7 +13,11 @@ spec:
   template:
     metadata:
       annotations:
+        {{ if .Values.externalSecrets.enabled }}
+        checksum/config: {{ include (print $.Template.BasePath "/externalsecret.yaml") . | sha256sum }}
+        {{ else }}
         checksum/config: {{ include (print $.Template.BasePath "/config.yaml") . | sha256sum }}
+        {{ end }}
         {{- if .Values.gke.enabled }}
         # https://cloud.google.com/kubernetes-engine/docs/how-to/extended-duration-pods
         cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
@@ -117,11 +121,19 @@ spec:
         - name: config
           projected:
             sources:
+            {{- if .Values.externalSecrets.enabled }}
+            - secret:
+                name: {{ include "agglayer.fullname" . }}-config-toml
+                items:
+                  - key: "config.toml"
+                    path: "config.toml"
+            {{- else }}
             - configMap:
                 name: agglayer-config
                 items:
                   - key: "config.toml"
                     path: "config.toml"
+            {{- end }}
             {{- if eq .Values.aggregator.keyName "" }}
             {{- if .Values.externalSecrets.enabled }}
             # Mount keystore from ExternalSecret
